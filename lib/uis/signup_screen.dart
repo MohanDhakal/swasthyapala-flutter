@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:swasthyapala_flutter/constants.dart';
-import 'package:swasthyapala_flutter/required_icons_.dart';
-import 'package:swasthyapala_flutter/uis/signup_screen.dart';
+import '../constants.dart';
+import '../required_icons_.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(title: "No Title", home: SignUpScreen(),);
-  }
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class LoginScreen extends StatelessWidget {
-  //key to recognize our form
+class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController myname_Controller;
   TextEditingController mypassword_Controller;
-
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +25,7 @@ class LoginScreen extends StatelessWidget {
                     color: Constants.theme_color,
                     borderRadius:
                         BorderRadius.only(bottomLeft: Radius.circular(80))),
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.35,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -50,8 +41,11 @@ class LoginScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 250.0, bottom: 20),
                       child: Text(
-                        "Login",
-                        style: TextStyle(fontSize: Constants.small_font_size, color: Colors.white,fontFamily: "OpenSans"),
+                        "Sign Up",
+                        style: TextStyle(
+                            fontSize: Constants.small_font_size,
+                            color: Colors.white,
+                            fontFamily: "OpenSans"),
                       ),
                     ),
                   ],
@@ -59,7 +53,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top:20.0),
+              padding: const EdgeInsets.only(top: 20.0),
               child: Container(
                 //todo: for input feild button and other message
                 child: Form(
@@ -85,12 +79,76 @@ class LoginScreen extends StatelessWidget {
                               ),
                               errorMaxLines: 2,
                               hintText: "Please enter your user name",
-                              hintStyle:
-                                  TextStyle(fontSize: 15, color: Colors.black12),
+                              hintStyle: TextStyle(
+                                  fontSize: 15, color: Colors.black12),
                             ),
                             validator: (value) {
                               if (value.isEmpty) {
                                 return "Please Enter some text";
+                              } else
+                                return null;
+                            },
+                            //this onChanged method is called whenever something changes in the feild
+                            //we have made textediting controller optional here
+                            onChanged: (values) {},
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.multiline,
+                            controller: myname_Controller,
+                            maxLines: null,
+                            textDirection: TextDirection.ltr,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(RequiredIcons.email),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  gapPadding: 4),
+                              labelText: "e-mail",
+                              labelStyle: TextStyle(
+                                fontSize: Constants.medium_font_size,
+                              ),
+                              errorMaxLines: 2,
+                              hintText: "enter your email",
+                              hintStyle: TextStyle(
+                                  fontSize: 15, color: Colors.black12),
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Please Enter some text";
+                              } else
+                                return null;
+                            },
+                            //this onChanged method is called whenever something changes in the feild
+                            //we have made textediting controller optional here
+                            onChanged: (values) {},
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.multiline,
+                            controller: myname_Controller,
+                            maxLines: null,
+                            textDirection: TextDirection.ltr,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.phone),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  gapPadding: 4),
+                              labelText: "phone",
+                              labelStyle: TextStyle(
+                                fontSize: Constants.medium_font_size,
+                              ),
+                              errorMaxLines: 2,
+                              hintText: "Please enter your contact number",
+                              hintStyle: TextStyle(
+                                  fontSize: 15, color: Colors.black12),
+                            ),
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "number can't be empty";
                               } else
                                 return null;
                             },
@@ -117,8 +175,9 @@ class LoginScreen extends StatelessWidget {
                               ),
                               errorMaxLines: 2,
                               hintText: "Enter your password",
-                              hintStyle:
-                                  TextStyle(fontSize: Constants.medium_font_size, color: Colors.black12),
+                              hintStyle: TextStyle(
+                                  fontSize: Constants.medium_font_size,
+                                  color: Colors.black12),
                             ),
                             validator: (value) {
                               if (value.isEmpty) {
@@ -131,8 +190,9 @@ class LoginScreen extends StatelessWidget {
                             onChanged: (values) {},
                           ),
                         ),
+
                         Padding(
-                          padding: const EdgeInsets.only(top:20.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Container(
                             width: MediaQuery.of(context).size.width * 0.9,
                             height: 50,
@@ -143,24 +203,27 @@ class LoginScreen extends StatelessWidget {
                                   side: BorderSide(color: Colors.blue)),
                               onPressed: () {},
                               child: Text(
-                                "Login",
-                                style: TextStyle( fontSize: Constants.medium_font_size,color: Colors.white),
+                                "sign up",
+                                style: TextStyle(
+                                    fontSize: Constants.medium_font_size,
+                                    color: Colors.white),
                               ),
                             ),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(18.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text(
-                                "Not registered already?",
-                                style: TextStyle( fontSize:Constants.small_font_size),
+                                "Already a user?",
+                                style: TextStyle(
+                                    fontSize: Constants.small_font_size),
                               ),
                               InkWell(
                                 child: Text(
-                                  "register",
+                                  "login",
                                   style: TextStyle(color: Colors.redAccent),
                                 ),
                               )
