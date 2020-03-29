@@ -1,23 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
+import 'package:swasthyapala_flutter/uis/homescreen.dart';
+import 'package:swasthyapala_flutter/uis/login_screen.dart';
+import 'package:swasthyapala_flutter/uis/user.dart';
 import '../constants.dart';
 import '../required_icons_.dart';
+import 'package:swasthyapala_flutter/validators.dart';
 
 class SignUpScreen extends StatefulWidget {
+  static const routeName = "/Signup";
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-
+  User user = new User();
   TextEditingController myname_Controller;
   TextEditingController mypassword_Controller;
+  IconData myIcons;
+  String currentUser;
+  bool showPassword;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    showPassword = false;
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (showPassword == false) {
+      myIcons = RequiredIcons.eye_off;
+    } else
+      myIcons = RequiredIcons.eye;
+
     return Scaffold(
       body: Container(
-        child: Column(
+        child: ListView(
           children: <Widget>[
             InkWell(
               child: Container(
@@ -55,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Container(
-                //todo: for input feild button and other message
+                //todo: for input field button and other message
                 child: Form(
                     key: _formKey,
                     child: Column(
@@ -78,19 +100,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: Constants.medium_font_size,
                               ),
                               errorMaxLines: 2,
-                              hintText: "Please enter your user name",
+                              hintText: "mohandkl@_50",
                               hintStyle: TextStyle(
                                   fontSize: 15, color: Colors.black12),
                             ),
                             validator: (value) {
-                              if (value.isEmpty) {
-                                return "Please Enter some text";
+                              setState(() {
+                                user.userName = value;
+                              });
+                              print(Validator.validateUsername(user.userName));
+                              if (Validator.validateUsername((user.userName)) ==
+                                  false) {
+                                return "enter the valid username";
                               } else
                                 return null;
                             },
                             //this onChanged method is called whenever something changes in the feild
                             //we have made textediting controller optional here
-                            onChanged: (values) {},
+                            onChanged: (value) {
+                              setState(() {
+                                user.userName = value;
+                              });
+                            },
                           ),
                         ),
                         Padding(
@@ -110,19 +141,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: Constants.medium_font_size,
                               ),
                               errorMaxLines: 2,
-                              hintText: "enter your email",
+                              hintText: "useurstrength@gmail.com",
                               hintStyle: TextStyle(
                                   fontSize: 15, color: Colors.black12),
                             ),
                             validator: (value) {
-                              if (value.isEmpty) {
-                                return "Please Enter some text";
+                              setState(() {
+                                user.email = value;
+                              });
+
+                              if (Validator.validateEmail((user.email)) ==
+                                  false) {
+                                return "incorrect email format";
                               } else
                                 return null;
                             },
                             //this onChanged method is called whenever something changes in the feild
                             //we have made textediting controller optional here
-                            onChanged: (values) {},
+                            onChanged: (values) {
+                              setState(() {
+                                user.email = values;
+                              });
+                            },
                           ),
                         ),
                         Padding(
@@ -142,19 +182,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: Constants.medium_font_size,
                               ),
                               errorMaxLines: 2,
-                              hintText: "Please enter your contact number",
+                              hintText: "9846132456",
                               hintStyle: TextStyle(
                                   fontSize: 15, color: Colors.black12),
                             ),
                             validator: (value) {
-                              if (value.isEmpty) {
+                              setState(() {
+                                user.phone = value;
+                              });
+                              if (Validator.validatePhone((user.phone)) ==
+                                  false) {
                                 return "number can't be empty";
                               } else
                                 return null;
                             },
                             //this onChanged method is called whenever something changes in the feild
                             //we have made textediting controller optional here
-                            onChanged: (values) {},
+                            onChanged: (values) {
+                              setState(() {
+                                user.phone = values;
+                              });
+                            },
                           ),
                         ),
                         Padding(
@@ -162,10 +210,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: TextFormField(
                             keyboardType: TextInputType.multiline,
                             controller: myname_Controller,
-                            maxLines: null,
+                            obscureText: !showPassword,
                             textDirection: TextDirection.ltr,
                             decoration: InputDecoration(
                               prefixIcon: Icon(RequiredIcons.vpn_key),
+                              suffixIcon: InkWell(
+                                child: Icon(myIcons),
+                                onTap: () {
+                                  setState(() {
+                                    showPassword = !showPassword;
+                                  });
+                                },
+                                splashColor: Constants.theme_color,
+                              ),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   gapPadding: 4),
@@ -174,14 +231,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: Constants.medium_font_size,
                               ),
                               errorMaxLines: 2,
-                              hintText: "Enter your password",
+                              hintText: "sample pass:abcDEF*@40",
                               hintStyle: TextStyle(
                                   fontSize: Constants.medium_font_size,
                                   color: Colors.black12),
                             ),
                             validator: (value) {
-                              if (value.isEmpty) {
-                                return "Please Enter some text";
+                              setState(() {
+                                user.password = value;
+                              });
+                              if (Validator.validatePasswored(user.password) ==
+                                  false) {
+                                return "enter the valid email";
                               } else
                                 return null;
                             },
@@ -190,7 +251,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             onChanged: (values) {},
                           ),
                         ),
-
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
@@ -201,7 +261,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: new BorderRadius.circular(24),
                                   side: BorderSide(color: Colors.blue)),
-                              onPressed: () {},
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  Util().getUser().then((value) {
+                                    if (user.userName == value) {
+                                     Scaffold.of (_formKey.currentState.context).showSnackBar(SnackBar(
+                                        content: Text("username already taken"),
+                                      ));
+                                    } else {
+                                      Navigator.pushReplacementNamed(
+                                          context, HomeScreen.routeName,
+                                          arguments: user);
+                                    }
+                                  });
+                                }
+                              },
                               child: Text(
                                 "sign up",
                                 style: TextStyle(
@@ -223,9 +297,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               InkWell(
                                 child: Text(
-                                  "login",
+                                  " login",
                                   style: TextStyle(color: Colors.redAccent),
                                 ),
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LoginScreen()));
+                                },
+                                splashColor: Colors.redAccent,
                               )
                             ],
                           ),
