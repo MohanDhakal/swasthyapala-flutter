@@ -1,6 +1,6 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swasthyapala_flutter/uis/user.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 
 class Util {
   Future<String> getUser() async {

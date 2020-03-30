@@ -1,4 +1,5 @@
 class Validator {
+
   static bool validateEmail(emailValue) {
     final emailsRegEX =
         RegExp(r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,3})$');

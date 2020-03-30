@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
 import 'package:swasthyapala_flutter/uis/signup_screen.dart';
-import 'package:swasthyapala_flutter/uis/user.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "/Home";

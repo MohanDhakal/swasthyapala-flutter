@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:shimmer/shimmer.dart';
-import 'package:swasthyapala_flutter/constants.dart';
+import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
-import 'homescreen.dart';
+import 'home_screen.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {

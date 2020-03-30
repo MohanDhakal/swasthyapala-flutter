@@ -1,10 +1,11 @@
 import 'dart:ui';
 
-class Constants{
+import 'package:flutter/foundation.dart';
+
+class Constants extends ChangeNotifier{
   static const double small_font_size=12;
   static const double medium_font_size=15;
   static const theme_color = Color(0xff388e3c);
   static const them_color_1=Color(0xff47F97D);
-
 
 }
