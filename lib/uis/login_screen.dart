@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/required_icons_.dart';
-import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
+import 'package:swasthyapala_flutter/util/utilmethods.dart';
 import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/signup_screen.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
@@ -108,8 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontSize: 15, color: Colors.black12),
                               ),
                               validator: (value) {
-                                user.userName = value;
-                                if (user.userName != savedUser) {
+                                user.setUserName(value) ;
+                                if (user.getUserName() != savedUser) {
                                   return "incorrect username";
                                 } else
                                   return null;
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               //this onChanged method is called whenever something changes in the feild
                               //we have made textediting controller optional here
                               onChanged: (values) {
-                                user.userName = values;
+                                user.setUserName(values) ;
                               },
                             ),
                           ),
@@ -144,8 +144,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.black12),
                               ),
                               validator: (value) {
-                                user.password = value;
-                                if (user.password != savedPass) {
+                                user.setPassword(value) ;
+                                if (user.getPassword() != savedPass) {
                                   return "password doesn't match";
                                 } else
                                   return null;
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               //this onChanged method is called whenever something changes in the feild
                               //we have made textediting controller optional here
                               onChanged: (values) {
-                                user.password = values;
+                                user.setPassword(values);
                               },
                             ),
                           ),
@@ -170,8 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
                                     print(savedPass);
-                                    if (user.userName == savedUser &&
-                                        user.password == savedPass) {
+                                    if (user.getUserName() == savedUser &&
+                                        user.getPassword() == savedPass) {
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(

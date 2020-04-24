@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
+import 'package:swasthyapala_flutter/util/utilmethods.dart';
 import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/login_screen.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
@@ -65,7 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 250.0, bottom: 20),
                       child: Text(
-                        Provider.of<User>(context, ).userName??"sign up",
+                        Provider.of<User>(context, ).getUserName()??"sign up",
                         style: TextStyle(
                             fontSize: Constants.small_font_size,
                             color: Colors.white,
@@ -81,7 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Container(
                 child: Consumer<User>(
                   builder: (context, user, child) {
-                    print(user.password);
+                    print(user.getUserName());
 //                    user=new User();
                     return Form(
                         key: _formKey,
@@ -110,11 +110,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.userName = value;
-                                  print(Validator.validateUsername(
-                                      user.userName));
+                                  user.setUserName(value) ;
+
                                   if (Validator.validateUsername(
-                                          (user.userName)) ==
+                                          (user.getUserName())) ==
                                       false) {
                                     return "enter the valid username";
                                   } else
@@ -123,7 +122,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 //this onChanged method is called whenever something changes in the feild
                                 //we have made textediting controller optional here
                                 onChanged: (value) {
-                                  user.userName = value;
+                                  user.setUserName(value);
                                 },
                               ),
                             ),
@@ -149,9 +148,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.email = value;
+                                  user.setEmail(value);
 
-                                  if (Validator.validateEmail((user.email)) ==
+                                  if (Validator.validateEmail(user.getEmail()) ==
                                       false) {
                                     return "incorrect email format";
                                   } else
@@ -160,7 +159,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 //this onChanged method is called whenever something changes in the feild
                                 //we have made textediting controller optional here
                                 onChanged: (values) {
-                                  user.email = values;
+                                  user.setEmail(values);
                                 },
                               ),
                             ),
@@ -186,8 +185,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.phone = value;
-                                  if (Validator.validatePhone((user.phone)) ==
+                                  user.setUserName(value);
+                                  if (Validator.validatePhone((user.getPhone())) ==
                                       false) {
                                     return "number can't be empty";
                                   } else
@@ -196,7 +195,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 //this onChanged method is called whenever something changes in the feild
                                 //we have made textediting controller optional here
                                 onChanged: (values) {
-                                  user.phone = values;
+                                  user.setPhoneNumber(values);
                                 },
                               ),
                             ),
@@ -232,9 +231,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.password = value;
+                                  user.setPassword(value) ;
                                   if (Validator.validatePasswored(
-                                          user.password) ==
+                                          user.getPassword()) ==
                                       false) {
                                     return "enter the valid email";
                                   } else
@@ -243,7 +242,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 //this onChanged method is called whenever something changes in the feild
                                 //we have made textediting controller optional here
                                 onChanged: (values) {
-                                  user.password = values;
+                                  user.setPassword(values);
                                 },
                               ),
                             ),
@@ -261,7 +260,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   onPressed: () {
                                     if (_formKey.currentState.validate()) {
                                       Util().getUser().then((value) {
-                                        if (user.userName == value) {
+                                        if (user.getUserName() == value) {
                                           Scaffold.of(
                                                   _formKey.currentState.context)
                                               .showSnackBar(SnackBar(

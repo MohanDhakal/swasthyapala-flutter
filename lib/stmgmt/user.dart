@@ -1,49 +1,55 @@
 import 'package:flutter/cupertino.dart';
+import 'package:swasthyapala_flutter/model/user.dart';
 
-class User extends ChangeNotifier{
+class User with ChangeNotifier {
+  NewUser _newUser = NewUser();
 
-  int _id;
-  String _phone;
-  String _email, _userName, _password;
 
-  User.name(this._id, this._phone, this._email, this._userName, this._password);
-
-  User();
-
-  int get id => _id;
-
-  set id(int value) {
-    _id = value;
+  setUserName(String userName) {
+    _newUser.userName = userName;
     notifyListeners();
   }
 
-  get password => _password;
-
-  set password(value) {
-    _password = value;
+  setPhoneNumber(String phone) {
+    _newUser.phone = phone;
     notifyListeners();
   }
 
-  get userName => _userName;
-
-  set userName(value) {
-    _userName = value;
+  setEmail(String email) {
+    _newUser.email = email;
     notifyListeners();
   }
 
-  String get email => _email;
-
-  set email(String value) {
-    _email = value;
+  setId(int id) {
+    _newUser.id = id;
     notifyListeners();
   }
 
-  String get phone => _phone;
-
-  set phone(String value) {
-    _phone = value;
+  setPassword(String password) {
+    _newUser.password = password;
     notifyListeners();
   }
 
+//gettters
 
+
+  String getPhone() {
+    return _newUser.phone;
+  }
+
+  String getEmail() {
+    return _newUser.email;
+  }
+
+  int getId() {
+    return _newUser.id;
+  }
+
+  String getUserName() {
+    return _newUser.userName;
+  }
+
+  String getPassword() {
+    return _newUser.password;
+  }
 }

@@ -1,0 +1,49 @@
+[
+  {
+    "timeStamp": 1,
+    "notifications": [
+      {
+        "imageUri": "images/mohan.jpg",
+        "message": "Mohan kumar Dhakal commented on your picture"
+      },
+      {
+        "imageUri": "images/messi.jpg",
+        "message": "Lionel messi has accepted your follow request "
+      }
+    ]
+  },
+  {
+    "timeStamp": 2,
+    "notifications": [
+      {
+        "imageUri": "images/mohan.jpg",
+        "message": "Mohan kumar Dhakal commented on your picture"
+      },
+      {
+        "imageUri": "images/messi.jpg",
+        "message": "Lionel messi has accepted your follow request"
+      },
+      {
+        "imageUri": "images/mohan.jpg",
+        "message": "Mohan kumar Dhakal commented on your picture"
+      },
+      {
+        "imageUri": "images/messi.jpg",
+        "message": "Lionel messi has accepted your follow request"
+      }
+    ]
+  },
+  {
+    "timeStamp": 3,
+    "notifications": [
+      {
+        "imageUri": "images/mohan.jpg",
+        "message": "Mohan kumar Dhakal commented on your picture"
+      },
+      {
+        "imageUri": "images/messi.jpg",
+        "message": "Lionel messi has accepted your follow request"
+      }
+    ]
+  }
+]

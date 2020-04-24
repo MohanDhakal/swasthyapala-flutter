@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:shimmer/shimmer.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
-import 'package:swasthyapala_flutter/stmgmt/signup_state.dart';
+import 'package:swasthyapala_flutter/util/utilmethods.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 

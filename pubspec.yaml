@@ -29,6 +29,7 @@ dependencies:
 
 
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -49,6 +50,20 @@ flutter:
   assets:
     - images/logo.png
     - images/bg.png
+    - images/cover.jpeg
+    - images/aaki.jpg
+    - images/argentina.jpg
+    - images/messi.jpg
+    - images/mohan.jpg
+    - images/fc_barcelona.jpg
+    - images/slider1.jpeg
+    - images/slider2.png
+    - images/first.png
+    - images/second.jpeg
+    - json/notifications.json
+    - json/comments.json
+    - json/directs.json
+
 
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/assets-and-images/#resolution-aware.
