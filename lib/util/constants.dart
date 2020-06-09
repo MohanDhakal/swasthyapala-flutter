@@ -15,6 +15,7 @@ class Constants extends ChangeNotifier {
   static const failedSignup = "failed to signup,retry";
   static const failedLogin = "failed to login,retry";
   static const logging = "logging in...";
+  static const signing ="signing...";
 
   static const articleAbstract =
       "Aakriti Always likes to fight with me. She accidentally wins over me with big margin on LUDO on Facebook."

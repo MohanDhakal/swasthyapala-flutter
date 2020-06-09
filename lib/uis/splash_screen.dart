@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/util/utilmethods.dart';
+
 import 'home_screen.dart';
 import 'login_screen.dart';
 
@@ -29,19 +33,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<bool> _mockCheckForSession() async {
     String user;
+
     Util().getUser().then((value) {
       user = value;
     });
 
-    await Future.delayed(Duration(milliseconds: 3000), () {
-
-    });
+    await Future.delayed(Duration(milliseconds: 2000), () {});
 
     if (user != null) {
-      print(user);
       return true;
-    } else
-      return false;
+    }
+
+    return false;
   }
 
   void _navigateToHome() {
@@ -50,8 +53,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToLogin() {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (BuildContext context) => LoginScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (BuildContext context) => LoginScreen()));
   }
 
   @override
@@ -64,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: <Widget>[
               Opacity(opacity: 0.5, child: Image.asset("images/bg.png")),
               Shimmer.fromColors(
-                period: Duration(milliseconds: 1000),
+                period: Duration(milliseconds: 500),
                 baseColor: Constants.them_color_1,
                 highlightColor: Constants.theme_color,
                 child: Container(

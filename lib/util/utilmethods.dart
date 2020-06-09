@@ -15,22 +15,26 @@ class Util {
 
   Future<String> getPassword() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     String user = prefs.getString("pass") ?? null;
     return user;
   }
 
-
+  void removeUser(String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(key);
+  }
 
   void putUser(User args) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("user", args.getUserName());
     prefs.setString("pass", args.getPassword());
   }
+
   Future<MessageList> fetchJsonData() async {
     String jsonString = await _loadJsonFromAsset();
     final jsonResponse = json.decode(jsonString);
-    return  MessageList.fromJson(jsonResponse);
-
+    return MessageList.fromJson(jsonResponse);
   }
 
   Future<String> _loadJsonFromAsset() async {

@@ -48,14 +48,5 @@ class _TestState extends State<Test> {
     user.password = "pass";
     user.email = "email";
     user.phone = "phone";
-
-    /* if (jsonResponse != null) {
-      for (Map i in jsonResponse['users']) {
-        userList.add(NewUser.fromJson(i));
-      }
-      print(userList[0].userName);
-    } else {
-      print("null userList");
-    }*/
   }
 }

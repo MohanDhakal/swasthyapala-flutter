@@ -11,6 +11,7 @@ import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/signup_screen.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
+import 'package:swasthyapala_flutter/util/utilmethods.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/Login';
@@ -35,7 +36,222 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     //checks network connectivity
     checkConnectivity();
+    subscribeConnection();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<User>(
+      create: (_) => User(),
+      child: Scaffold(
+        body: Container(
+          child: ListView(
+            children: <Widget>[
+              getBanner(context),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Consumer<User>(
+                  builder: (context, user, child) {
+                    return Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            getUserNameFeild(user),
+                            getPasswordFeild(user),
+                            getLoginButton(context, user),
+                            getBottomWidgetList(context)
+                          ],
+                        ));
+                  },
+                  child: Container(),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding getBottomWidgetList(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(18.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            "Not registered already?",
+            style: TextStyle(fontSize: Constants.small_font_size),
+          ),
+          InkWell(
+            child: Text(
+              "register",
+              style: TextStyle(color: Colors.redAccent),
+            ),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return ChangeNotifierProvider<User>(
+                    create: (_) => User(), child: SignUpScreen());
+              }));
+            },
+            splashColor: Colors.redAccent,
+          )
+        ],
+      ),
+    );
+  }
+
+  Padding getLoginButton(BuildContext context, User user) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: 50,
+        child: RaisedButton(
+          color: Constants.theme_color,
+          shape: RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(24),
+              side: BorderSide(color: Colors.blue)),
+          onPressed: () {
+            checkConnectivity();
+            if (_formKey.currentState.validate()) {
+              //if internet is connected
+              if (connectionStatus == true) {
+                showStatusDialog(Constants.logging);
+                handleLogin(user);
+              } else {
+                showStatusDialog(Constants.connectionErrorMessage);
+              }
+            }
+            //if form validation is not correct
+            else {
+              Scaffold.of(_formKey.currentContext).showSnackBar(SnackBar(
+                content: Text("form validation error"),
+              ));
+            }
+          },
+          child: Text(
+            "Login",
+            style: TextStyle(
+                fontSize: Constants.medium_font_size, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding getPasswordFeild(User user) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        keyboardType: TextInputType.multiline,
+        controller: myNameController,
+        maxLines: null,
+        textDirection: TextDirection.ltr,
+        decoration: InputDecoration(
+          prefixIcon: Icon(RequiredIcons.vpn_key),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), gapPadding: 4),
+          labelText: "password",
+          labelStyle: TextStyle(
+            fontSize: Constants.medium_font_size,
+          ),
+          errorMaxLines: 2,
+          hintText: "Enter your password",
+          hintStyle: TextStyle(
+              fontSize: Constants.medium_font_size, color: Colors.black12),
+        ),
+        validator: (value) {
+          user.setPassword(value);
+          if (user.getPassword().length < 6) {
+            return "invalid format";
+          } else
+            return null;
+        },
+        //this onChanged method is called whenever something changes in the feild
+        //we have made textediting controller optional here
+        onChanged: (values) {
+          user.setPassword(values);
+        },
+      ),
+    );
+  }
+
+  Padding getUserNameFeild(User user) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        keyboardType: TextInputType.multiline,
+        controller: myNameController,
+        maxLines: null,
+        textDirection: TextDirection.ltr,
+        decoration: InputDecoration(
+          prefixIcon: Icon(RequiredIcons.user),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), gapPadding: 4),
+          labelText: "username",
+          labelStyle: TextStyle(
+            fontSize: Constants.medium_font_size,
+          ),
+          errorMaxLines: 2,
+          hintText: " enter your user name",
+          hintStyle: TextStyle(fontSize: 15, color: Colors.black12),
+        ),
+        validator: (value) {
+          user.setUserName(value);
+          if (user.getUserName().length < 6) {
+            return "invalid format";
+          } else
+            return null;
+        },
+        //this onChanged method is called whenever something changes in the feild
+        //we have made textediting controller optional here
+        onChanged: (values) {
+          user.setUserName(values);
+        },
+      ),
+    );
+  }
+
+  InkWell getBanner(BuildContext context) {
+    return InkWell(
+      child: Container(
+        decoration: BoxDecoration(
+            color: Constants.theme_color,
+            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(80))),
+        height: MediaQuery.of(context).size.height * 0.4,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: Image.asset(
+                "images/logo.png",
+                height: 80,
+                width: 80,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 250.0, bottom: 20),
+              child: Text(
+                "Login",
+                style: TextStyle(
+                    fontSize: Constants.small_font_size,
+                    color: Colors.white,
+                    fontFamily: "OpenSans"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void subscribeConnection() {
     //polling the network connection in the background
+
     subscription = Connectivity()
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
@@ -52,202 +268,6 @@ class _LoginScreenState extends State<LoginScreen> {
   dispose() {
     super.dispose();
     subscription.cancel();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: ListView(
-          children: <Widget>[
-            InkWell(
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Constants.theme_color,
-                    borderRadius:
-                        BorderRadius.only(bottomLeft: Radius.circular(80))),
-                height: MediaQuery.of(context).size.height * 0.4,
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 50.0),
-                      child: Image.asset(
-                        "images/logo.png",
-                        height: 80,
-                        width: 80,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 250.0, bottom: 20),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: Constants.small_font_size,
-                            color: Colors.white,
-                            fontFamily: "OpenSans"),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Consumer<User>(
-                builder: (context, user, child) {
-                  return Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              keyboardType: TextInputType.multiline,
-                              controller: myNameController,
-                              maxLines: null,
-                              textDirection: TextDirection.ltr,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(RequiredIcons.user),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    gapPadding: 4),
-                                labelText: "username",
-                                labelStyle: TextStyle(
-                                  fontSize: Constants.medium_font_size,
-                                ),
-                                errorMaxLines: 2,
-                                hintText: " enter your user name",
-                                hintStyle: TextStyle(
-                                    fontSize: 15, color: Colors.black12),
-                              ),
-                              validator: (value) {
-                                user.setUserName(value);
-                                if (user.getUserName().length < 6) {
-                                  return "invalid format";
-                                } else
-                                  return null;
-                              },
-                              //this onChanged method is called whenever something changes in the feild
-                              //we have made textediting controller optional here
-                              onChanged: (values) {
-                                user.setUserName(values);
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              keyboardType: TextInputType.multiline,
-                              controller: myNameController,
-                              maxLines: null,
-                              textDirection: TextDirection.ltr,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(RequiredIcons.vpn_key),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    gapPadding: 4),
-                                labelText: "password",
-                                labelStyle: TextStyle(
-                                  fontSize: Constants.medium_font_size,
-                                ),
-                                errorMaxLines: 2,
-                                hintText: "Enter your password",
-                                hintStyle: TextStyle(
-                                    fontSize: Constants.medium_font_size,
-                                    color: Colors.black12),
-                              ),
-                              validator: (value) {
-                                user.setPassword(value);
-                                if (user.getPassword().length < 6) {
-                                  return "invalid format";
-                                } else
-                                  return null;
-                              },
-                              //this onChanged method is called whenever something changes in the feild
-                              //we have made textediting controller optional here
-                              onChanged: (values) {
-                                user.setPassword(values);
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20.0),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.9,
-                              height: 50,
-                              child: RaisedButton(
-                                color: Constants.theme_color,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: new BorderRadius.circular(24),
-                                    side: BorderSide(color: Colors.blue)),
-                                onPressed: () {
-                                  checkConnectivity();
-                                  if (_formKey.currentState.validate()) {
-                                    //if internet is connected
-                                    if (connectionStatus == true) {
-                                      showStatusDialog(Constants.logging);
-                                      handleLogin(user);
-                                    } else {
-                                      showStatusDialog(
-                                          Constants.connectionErrorMessage);
-                                    }
-                                  }
-                                  //if form validation is not correct
-                                  else {
-                                    Scaffold.of(_formKey.currentContext)
-                                        .showSnackBar(SnackBar(
-                                      content: Text("form validation error"),
-                                    ));
-                                  }
-                                },
-                                child: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                      fontSize: Constants.medium_font_size,
-                                      color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Text(
-                                  "Not registered already?",
-                                  style: TextStyle(
-                                      fontSize: Constants.small_font_size),
-                                ),
-                                InkWell(
-                                  child: Text(
-                                    "register",
-                                    style: TextStyle(color: Colors.redAccent),
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return SignUpScreen();
-                                    }));
-                                  },
-                                  splashColor: Colors.redAccent,
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ));
-                },
-                child: Container(),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
   }
 
   checkConnectivity() async {
@@ -325,6 +345,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response['validated'] == true) {
         //takes out from the Dialog
         Navigator.pop(context);
+        //also add user to sharedpreference to check session
+        addUserSession(user);
+
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
@@ -343,5 +366,10 @@ class _LoginScreenState extends State<LoginScreen> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: encodedString);
+  }
+
+  void addUserSession(user) {
+    Util saveUserSession = new Util();
+    saveUserSession.putUser(user);
   }
 }

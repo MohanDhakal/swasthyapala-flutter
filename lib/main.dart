@@ -21,11 +21,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ChangeNotifierProvider<User>(
-        create: (_) => User(),
-        child: Scaffold(
-          body: LoginScreen()
-        ),
+      home: Scaffold(
+        body: SplashScreen()
       ),
     );
 
