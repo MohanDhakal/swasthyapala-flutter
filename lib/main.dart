@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/stmgmt/comments.dart';
+import 'package:swasthyapala_flutter/test.dart';
 import 'package:swasthyapala_flutter/uis/blog_posts_screen.dart';
 import 'package:swasthyapala_flutter/uis/comments.dart';
 import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/login_screen.dart';
 import 'package:swasthyapala_flutter/uis/post_detail.dart';
 import 'package:swasthyapala_flutter/uis/posts.dart';
+import 'package:swasthyapala_flutter/uis/profile.dart';
 import 'package:swasthyapala_flutter/uis/signup_screen.dart';
 import 'package:swasthyapala_flutter/uis/splash_screen.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
@@ -18,7 +20,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MaterialApp(
+      home: ChangeNotifierProvider<User>(
+        create: (_) => User(),
+        child: Scaffold(
+          body: LoginScreen()
+        ),
+      ),
+    );
+
+
+    /*return MultiProvider(
       providers: [
         MultiProvider(providers: [
           ChangeNotifierProvider(create: (_) => User()),
@@ -40,6 +52,6 @@ class MyApp extends StatelessWidget {
           PostCommentBox.routeName: (context) => PostCommentBox()
         },
       ),
-    );
+    );*/
   }
 }

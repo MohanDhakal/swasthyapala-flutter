@@ -1,12 +1,18 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:swasthyapala_flutter/util/utilmethods.dart';
-import 'package:swasthyapala_flutter/uis/home_screen.dart';
-import 'package:swasthyapala_flutter/uis/login_screen.dart';
+import 'package:swasthyapala_flutter/model/user.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
-import '../util/constants.dart';
-import '../required_icons_.dart';
+import 'package:swasthyapala_flutter/test.dart';
+import 'package:swasthyapala_flutter/uis/login_screen.dart';
 import 'package:swasthyapala_flutter/util/validators.dart';
+
+import '../required_icons_.dart';
+import '../util/constants.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const routeName = "/Signup";
@@ -16,24 +22,80 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+
+
   final _formKey = GlobalKey<FormState>();
-  TextEditingController myname_Controller;
-  TextEditingController mypassword_Controller;
+
+  TextEditingController myNameController;
+  TextEditingController myPasswordController;
+
   IconData myIcons;
   String currentUser;
   bool showPassword;
+  bool isPressed = false;
+  NewUser newUser;
+  String errorText = "signing";
+  bool connectionStatus = false;
+  StreamSubscription subscription;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     showPassword = false;
+    //checks network connectivity
+    checkConnectivity();
+    //polling the network connection in the background
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.mobile ||
+          result == ConnectivityResult.wifi) {
+        setState(() {
+          connectionStatus = true;
+        });
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+
+  void showStatusDialog(errorText) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      child: SizedBox(
+        height: 100,
+        child: new AlertDialog(
+          title: Text(errorText),
+          content:
+              errorText == "signing" ? CircularProgressIndicator() : SizedBox(),
+          actions: [
+            (errorText == Constants.failedSignup ||
+                    errorText == Constants.connectionErrorMessage)
+                ? FlatButton(
+                    onPressed: () {
+                      //goes to signup age again
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider(
+                                  create: (_) => User(),
+                                  child: SignUpScreen())));
+                    },
+                    child: Text("sign up again"))
+                : Container(),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
-
     if (showPassword == false) {
       myIcons = RequiredIcons.eye_off;
     } else
@@ -65,7 +127,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 250.0, bottom: 20),
                       child: Text(
-                        Provider.of<User>(context, ).getUserName()??"sign up",
+                        "sign up",
                         style: TextStyle(
                             fontSize: Constants.small_font_size,
                             color: Colors.white,
@@ -81,8 +143,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Container(
                 child: Consumer<User>(
                   builder: (context, user, child) {
-                    print(user.getUserName());
-//                    user=new User();
                     return Form(
                         key: _formKey,
                         child: Column(
@@ -92,7 +152,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
                                 keyboardType: TextInputType.multiline,
-                                controller: myname_Controller,
+                                controller: myNameController,
                                 maxLines: null,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
@@ -105,12 +165,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     fontSize: Constants.medium_font_size,
                                   ),
                                   errorMaxLines: 2,
-                                  hintText: "mohandkl@_50",
+                                  hintText: "mohandkl@512",
                                   hintStyle: TextStyle(
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.setUserName(value) ;
+                                  user.setUserName(value);
 
                                   if (Validator.validateUsername(
                                           (user.getUserName())) ==
@@ -130,7 +190,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
                                 keyboardType: TextInputType.multiline,
-                                controller: myname_Controller,
+                                controller: myNameController,
                                 maxLines: null,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
@@ -143,14 +203,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     fontSize: Constants.medium_font_size,
                                   ),
                                   errorMaxLines: 2,
-                                  hintText: "useurstrength@gmail.com",
+                                  hintText: "johnet12@gmail.com",
                                   hintStyle: TextStyle(
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
                                   user.setEmail(value);
 
-                                  if (Validator.validateEmail(user.getEmail()) ==
+                                  if (Validator.validateEmail(
+                                          user.getEmail()) ==
                                       false) {
                                     return "incorrect email format";
                                   } else
@@ -167,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
                                 keyboardType: TextInputType.multiline,
-                                controller: myname_Controller,
+                                controller: myNameController,
                                 maxLines: null,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
@@ -180,15 +241,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     fontSize: Constants.medium_font_size,
                                   ),
                                   errorMaxLines: 2,
-                                  hintText: "9846132456",
+                                  hintText: "9865898432",
                                   hintStyle: TextStyle(
                                       fontSize: 15, color: Colors.black12),
                                 ),
                                 validator: (value) {
                                   user.setUserName(value);
-                                  if (Validator.validatePhone((user.getPhone())) ==
+
+                                  if (Validator.validatePhone(
+                                          (user.getPhone() ?? "12")) ==
                                       false) {
-                                    return "number can't be empty";
+                                    return "typed number is incorrect";
                                   } else
                                     return null;
                                 },
@@ -203,7 +266,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
                                 keyboardType: TextInputType.multiline,
-                                controller: myname_Controller,
+                                controller: myNameController,
                                 obscureText: !showPassword,
                                 textDirection: TextDirection.ltr,
                                 decoration: InputDecoration(
@@ -231,7 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       color: Colors.black12),
                                 ),
                                 validator: (value) {
-                                  user.setPassword(value) ;
+                                  user.setPassword(value);
                                   if (Validator.validatePasswored(
                                           user.getPassword()) ==
                                       false) {
@@ -258,21 +321,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           new BorderRadius.circular(24),
                                       side: BorderSide(color: Colors.blue)),
                                   onPressed: () {
+                                    //check network connectivity once button is clicked
+                                    checkConnectivity();
+                                    //validate the form
                                     if (_formKey.currentState.validate()) {
-                                      Util().getUser().then((value) {
-                                        if (user.getUserName() == value) {
-                                          Scaffold.of(
-                                                  _formKey.currentState.context)
-                                              .showSnackBar(SnackBar(
-                                            content:
-                                                Text("username already taken"),
-                                          ));
-                                        } else {
-                                          Navigator.pushReplacementNamed(
-                                              context, HomeScreen.routeName,
-                                              arguments: user);
-                                        }
-                                      });
+                                      //if the form is validated and network is availbale
+                                      if (connectionStatus == true) {
+                                        //show dialog with the message sigining in
+                                        showStatusDialog(errorText);
+
+                                        NewUser newUser = NewUser.name(
+                                            user.getPhone(),
+                                            user.getEmail(),
+                                            user.getUserName(),
+                                            user.getPassword());
+
+                                        String encodedString =
+                                            jsonEncode(newUser);
+
+                                        addNewUser(encodedString).then((value) {
+                                          final response =
+                                              jsonDecode(value.body);
+
+                                          //response status 1 means response code 200
+
+                                          if (response['status'] == 1) {
+                                            //popping the context of dialog before going to another page
+                                            Navigator.pop(context);
+
+                                            //goto another page
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Test()));
+                                          } else {
+                                            //if the response code is not 200
+                                            setState(() {
+                                              errorText =
+                                                  Constants.failedSignup;
+                                            });
+
+                                            //pop the context of the previous dialog
+
+                                            Navigator.pop(context);
+                                            //show new dialog with new signupfailed error
+                                            showStatusDialog(errorText);
+                                          }
+                                        });
+                                      } else {
+
+                                        setState(() {
+                                          errorText =
+                                              Constants.connectionErrorMessage;
+                                        });
+                                      }
+                                    } else {
+                                      //if validation is not passed show this snackbar
+                                      Scaffold.of(_formKey.currentState.context)
+                                          .showSnackBar(SnackBar(
+                                              content:
+                                                  Text("validation error")));
                                     }
                                   },
                                   child: Text(
@@ -321,5 +430,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  Future<Response> addNewUser(String encodedString) async {
+    return await post(
+        "http://swasthyapala.com/swasthyapala/user/insert_user.php",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: encodedString);
+  }
+
+  checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      setState(() {
+        connectionStatus = true;
+      });
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      setState(() {
+        connectionStatus = true;
+      });
+    } else {
+      connectionStatus = false;
+    }
   }
 }

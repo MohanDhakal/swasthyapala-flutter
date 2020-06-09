@@ -4,6 +4,9 @@ import 'package:swasthyapala_flutter/model/user.dart';
 class User with ChangeNotifier {
   NewUser _newUser = NewUser();
 
+  NewUser getNewUser(user) {
+    return user;
+  }
 
   setUserName(String userName) {
     _newUser.userName = userName;
@@ -31,7 +34,6 @@ class User with ChangeNotifier {
   }
 
 //gettters
-
 
   String getPhone() {
     return _newUser.phone;

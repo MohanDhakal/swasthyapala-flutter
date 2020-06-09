@@ -1,14 +1,23 @@
-import 'package:flutter/cupertino.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'user.g.dart';
+
+@JsonSerializable()
 class NewUser {
-
   int _id;
   String _phone;
   String _email, _userName, _password;
 
-  NewUser.name(this._id, this._phone, this._email, this._userName, this._password);
+  NewUser.name(
+       this._phone, this._email, this._userName, this._password);
 
   NewUser();
+
+  factory NewUser.fromJson(Map<String, dynamic> json) =>
+      _$NewUserFromJson(json);
+
+
+  Map<String, dynamic> toJson() => _$NewUserToJson(this);
 
   int get id => _id;
 
@@ -20,7 +29,6 @@ class NewUser {
 
   set password(value) {
     _password = value;
-
   }
 
   get userName => _userName;

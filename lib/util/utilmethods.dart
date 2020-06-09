@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swasthyapala_flutter/model/messages.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
 
 class Util {
@@ -15,10 +19,22 @@ class Util {
     return user;
   }
 
+
+
   void putUser(User args) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("user", args.getUserName());
     prefs.setString("pass", args.getPassword());
+  }
+  Future<MessageList> fetchJsonData() async {
+    String jsonString = await _loadJsonFromAsset();
+    final jsonResponse = json.decode(jsonString);
+    return  MessageList.fromJson(jsonResponse);
+
+  }
+
+  Future<String> _loadJsonFromAsset() async {
+    return await rootBundle.loadString('json/directs.json');
   }
 
   List<BoxShadow> showShadow() {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,88 +28,98 @@ class _PostDetailState extends State<PostDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(top: 50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          "Mohan Dhakal",
-                          style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "AUTHOR",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: Constants.small_font_size),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 5),
-                      child: ClipRRect(
-                        child: Image.asset(
-                          "images/cover.jpeg",
-                          fit: BoxFit.cover,
-                          height: 50,
-                          width: 50,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return ChangeNotifierProvider<CommentsList>(
+      create: (_) => CommentsList(),
+      child: Scaffold(
+        body: ListView(
+          children: <Widget>[
+            getWriterInfo("Mohan Kumar Dhakal", "Engineer,Nutrition Enthusiast",
+                "Engineer with a motive and a self motivated developer"),
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      hashTag("health"),
-                      hashTag("health and food"),
-                      hashTag("availablity"),
-                      hashTag("accessibility")
+                      Image.asset(
+                        "images/cover.jpeg",
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(12),
+                        child: Text(
+                          Constants.articleAbstract,
+                          textAlign: TextAlign.justify,
+                          maxLines: 50,
+                          style: TextStyle(
+                            letterSpacing: 0.5,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Image.asset(
-                      "images/cover.jpeg",
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(12),
-                      child: Text(
-                        "This is the test status for the sample app with flutter ,it can be extended"
-                        "as you wish because it's height is unbounded as you wish because it's height is unbounded"
-                        "as you wish because it's height is unbounded as you wish because it's height is unbounded"
-                        "as you wish because it's height is unbounded as you wish because it's height is unbounded",
-                        textAlign: TextAlign.justify,
-                        maxLines: 50,
-                        style: TextStyle(
-                          letterSpacing: 0.5,
-                          fontStyle: FontStyle.normal,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
+            ),
+            PostCommentBox(),
+            getCommentsList()
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getWriterInfo(String name, String post, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 5),
+            child: ClipRRect(
+              child: Image.asset(
+                "images/cover.jpeg",
+                fit: BoxFit.cover,
+                height: 50,
+                width: 50,
+              ),
+              borderRadius: BorderRadius.circular(24),
             ),
           ),
-          PostCommentBox(),
-          getCommentsList(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                name,
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                post,
+                style: TextStyle(
+                    color: Colors.black, fontSize: Constants.small_font_size),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget getTags(List<String> tags) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          hashTag("health"),
+          hashTag("health and food"),
+          hashTag("availablity"),
+          hashTag("accessibility")
         ],
       ),
     );
@@ -119,8 +130,6 @@ class _PostDetailState extends State<PostDetail> {
 
     return Consumer<CommentsList>(
       builder: (context, comments, child) {
-        print("into the builder function with ");
-
         comments.getAllComments().then((value) {
           print(value.length);
           list = value;
@@ -141,7 +150,10 @@ class _PostDetailState extends State<PostDetail> {
             itemCount: list.length,
           );
         } else {
-          return Text("No comments added");
+          return Padding(
+            padding: const EdgeInsets.only(left:8.0),
+            child: Text("No comments added"),
+          );
         }
       },
     );
@@ -149,7 +161,7 @@ class _PostDetailState extends State<PostDetail> {
 
   Widget getComments() {
     if (messageList == null) {
-      return Text("data is on the way");
+      return CircularProgressIndicator();
     } else {
       return Expanded(
         child: ListView.builder(
@@ -202,14 +214,13 @@ class _PostDetailState extends State<PostDetail> {
 }
 
 class MyComment extends StatelessWidget {
-  @required
+
   final int userId;
-  @required
   final String userName;
-  @required
   final String commentMessage;
-  @required
-  Comment object;
+  final Comment object;
+
+  //if image has been already used in a row
 
   static bool isImgTouched = false;
 
@@ -218,13 +229,11 @@ class MyComment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          isEven(this.userId) ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        isEven(this.userId)
-            ? getNameAndComments(context)
-            : getImageAsset(context),
-        isImgTouched ? getNameAndComments(context) : getImageAsset(context)
+        getImageAsset(context),
+        getNameAndComments(context),
       ],
     );
   }
@@ -232,68 +241,79 @@ class MyComment extends StatelessWidget {
   Widget getImageAsset(context) {
     isImgTouched = true;
 
-    return ClipRRect(
-      child: Image.asset(
-        "images/cover.jpeg",
-        fit: BoxFit.cover,
-        height: 50,
-        width: 50,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClipRRect(
+        child: Image.asset(
+          "images/cover.jpeg",
+          fit: BoxFit.cover,
+          height: 50,
+          width: 50,
+        ),
+        borderRadius: BorderRadius.circular(24),
       ),
-      borderRadius: BorderRadius.circular(24),
     );
   }
 
   Widget getNameAndComments(context) {
     isImgTouched = false;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(this.userName,
-            style: TextStyle(
-                fontSize: Constants.medium_font_size,
-                fontWeight: FontWeight.bold)),
-        Text(this.commentMessage,
-            style: TextStyle(
-              fontSize: Constants.small_font_size,
-            )),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Flexible(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            Text(this.userName,
+                style: TextStyle(
+                    fontSize: Constants.medium_font_size,
+                    fontWeight: FontWeight.bold)),
+            Text(this.commentMessage,
+                style: TextStyle(
+                  fontSize: Constants.small_font_size,
+                )),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 5.0),
+                  child: InkWell(
+                    onTap: () {
+                      Provider.of<CommentsList>(context, listen: false)
+                          .addLikes(this.object);
+                    },
+                    splashColor: Constants.them_color_1,
+                    child: Icon(
+                      Icons.thumb_up,
+                      size: 15,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+                  child: Text(
+                    "reply",
+                    style: TextStyle(color: Colors.lightBlue),
+                  ),
+                )
+              ],
+            ),
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
-              child: InkWell(
-                onTap: () {
-                  Provider.of<CommentsList>(context, listen: false)
-                      .addLikes(this.object);
-                },
-                splashColor: Constants.them_color_1,
-                child: Icon(
-                  Icons.thumb_up,
-                  size: 15,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
               child: Text(
-                "reply",
-                style: TextStyle(color: Colors.lightBlue),
-              ),
-            )
+                  Provider.of<CommentsList>(context).getAllLikes(this.object) ==
+                          0
+                      ? " "
+                      : Provider.of<CommentsList>(context)
+                          .getAllLikes(this.object)
+                          .toString()),
+            ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal:8.0,vertical:5.0 ),
-          child: Text(
-              Provider.of<CommentsList>(context).getAllLikes(this.object) == 0
-                  ? " "
-                  : Provider.of<CommentsList>(context)
-                      .getAllLikes(this.object)
-                      .toString()),
-        ),
-      ],
+      ),
     );
   }
 

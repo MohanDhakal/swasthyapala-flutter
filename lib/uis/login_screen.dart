@@ -1,11 +1,16 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/required_icons_.dart';
-import 'package:swasthyapala_flutter/util/utilmethods.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/signup_screen.dart';
-import 'package:swasthyapala_flutter/stmgmt/user.dart';
+import 'package:swasthyapala_flutter/util/constants.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/Login';
@@ -18,28 +23,39 @@ class _LoginScreenState extends State<LoginScreen> {
   //key to recognize our form
   final _formKey = GlobalKey<FormState>();
 
-  String savedUser = "";
-  String savedPass = "";
+  TextEditingController myNameController;
+  TextEditingController myPasswordController;
+  String errorText = Constants.logging;
 
-  TextEditingController myname_Controller;
-  TextEditingController mypassword_Controller;
+  bool connectionStatus = false;
+  StreamSubscription subscription;
 
-  Util savedData = new Util();
+  @override
+  void initState() {
+    super.initState();
+    //checks network connectivity
+    checkConnectivity();
+    //polling the network connection in the background
+    subscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.mobile ||
+          result == ConnectivityResult.wifi) {
+        setState(() {
+          connectionStatus = true;
+        });
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    savedData.getUser().then((value) {
-      setState(() {
-        savedUser = value;
-      });
-    });
-
-    savedData.getPassword().then((value) {
-      setState(() {});
-      this.savedPass = value;
-    });
-
     return Scaffold(
       body: Container(
         child: ListView(
@@ -90,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
                               keyboardType: TextInputType.multiline,
-                              controller: myname_Controller,
+                              controller: myNameController,
                               maxLines: null,
                               textDirection: TextDirection.ltr,
                               decoration: InputDecoration(
@@ -103,21 +119,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontSize: Constants.medium_font_size,
                                 ),
                                 errorMaxLines: 2,
-                                hintText: "Please enter your user name",
+                                hintText: " enter your user name",
                                 hintStyle: TextStyle(
                                     fontSize: 15, color: Colors.black12),
                               ),
                               validator: (value) {
-                                user.setUserName(value) ;
-                                if (user.getUserName() != savedUser) {
-                                  return "incorrect username";
+                                user.setUserName(value);
+                                if (user.getUserName().length < 6) {
+                                  return "invalid format";
                                 } else
                                   return null;
                               },
                               //this onChanged method is called whenever something changes in the feild
                               //we have made textediting controller optional here
                               onChanged: (values) {
-                                user.setUserName(values) ;
+                                user.setUserName(values);
                               },
                             ),
                           ),
@@ -125,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
                               keyboardType: TextInputType.multiline,
-                              controller: myname_Controller,
+                              controller: myNameController,
                               maxLines: null,
                               textDirection: TextDirection.ltr,
                               decoration: InputDecoration(
@@ -144,9 +160,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.black12),
                               ),
                               validator: (value) {
-                                user.setPassword(value) ;
-                                if (user.getPassword() != savedPass) {
-                                  return "password doesn't match";
+                                user.setPassword(value);
+                                if (user.getPassword().length < 6) {
+                                  return "invalid format";
                                 } else
                                   return null;
                               },
@@ -168,25 +184,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: new BorderRadius.circular(24),
                                     side: BorderSide(color: Colors.blue)),
                                 onPressed: () {
+                                  checkConnectivity();
                                   if (_formKey.currentState.validate()) {
-                                    print(savedPass);
-                                    if (user.getUserName() == savedUser &&
-                                        user.getPassword() == savedPass) {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomeScreen()));
+                                    //if internet is connected
+                                    if (connectionStatus == true) {
+                                      showStatusDialog(Constants.logging);
+                                      handleLogin(user);
                                     } else {
-                                      Scaffold.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            "username or password not valid"),
-                                      ));
+                                      showStatusDialog(
+                                          Constants.connectionErrorMessage);
                                     }
-                                  } else {
-                                    Scaffold.of(context).showSnackBar(SnackBar(
-                                      content: Text("Validation Error"),
+                                  }
+                                  //if form validation is not correct
+                                  else {
+                                    Scaffold.of(_formKey.currentContext)
+                                        .showSnackBar(SnackBar(
+                                      content: Text("form validation error"),
                                     ));
                                   }
                                 },
@@ -235,5 +248,100 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  checkConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      setState(() {
+        connectionStatus = true;
+      });
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      setState(() {
+        connectionStatus = true;
+      });
+    } else {
+      connectionStatus = false;
+    }
+  }
+
+  Widget getLoadingWidget() {
+    return (this.errorText == Constants.logging)
+        ? SpinKitFadingCube(
+            color: Colors.blue,
+            size: 50,
+          )
+        : SizedBox(
+            height: 10,
+          );
+  }
+
+  void showStatusDialog(placeHolderText) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: 100),
+        child: new AlertDialog(
+          title: Text(placeHolderText),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              getLoadingWidget(),
+            ],
+          ),
+          actions: [
+            (placeHolderText == Constants.failedSignup ||
+                    placeHolderText == Constants.connectionErrorMessage)
+                ? FlatButton(
+                    onPressed: () {
+                      //goes to login page again
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider(
+                                  create: (_) => User(),
+                                  child: LoginScreen())));
+                    },
+                    child: Text("try again"))
+                : Container(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void handleLogin(user) {
+    //client validation of the form
+    //prepare json to send
+    final body = {
+      "userName": user.getUserName(),
+      "password": user.getPassword()
+    };
+
+    handleValidationRequest(jsonEncode(body)).then((value) {
+      print(value.statusCode);
+      final response = jsonDecode(value.body);
+      if (response['validated'] == true) {
+        //takes out from the Dialog
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else {
+        Navigator.pop(context);
+        Scaffold.of(_formKey.currentState.context).showSnackBar(SnackBar(
+          content: Text("username or password not valid"),
+        ));
+      }
+    });
+  }
+
+  Future<Response> handleValidationRequest(String encodedString) async {
+    return await post(
+        "http://swasthyapala.com/swasthyapala/user/validate_user.php",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: encodedString);
   }
 }

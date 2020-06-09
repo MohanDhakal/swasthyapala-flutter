@@ -7,6 +7,7 @@ import 'package:swasthyapala_flutter/util/utility_widget.dart';
 class BlogPosts extends StatelessWidget {
   static const routeName = "blog";
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -18,11 +19,11 @@ class BlogPosts extends StatelessWidget {
           title: Text("Test App"),
         ),
         body: Container(
-          height: height * 0.725,
           margin: EdgeInsets.only(top: 15),
           child: Card(
-            elevation: 10,
+            elevation: 5,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Stack(
                   children: <Widget>[
@@ -32,7 +33,7 @@ class BlogPosts extends StatelessWidget {
                         height: height * 0.30,
                         width: width,
                         child: Image.asset(
-                             //give dynamic uri in this name of string
+                             //todo:give dynamic uri in this name of string
                               "images/bg.png",
                               fit: BoxFit.cover,
                               color: Colors.black12,
@@ -151,41 +152,39 @@ class BlogPosts extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Container(
-                      height: 200,
-                      child: Stack(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Aakriti Always likes to fight with me. She accidentally wins over me with big margin on LUDO on Facebook."
-                              "She is dumbhead,a real dumbhead, starts fighting with no reason and she "
-                              "herself tells me to stop talking because we end of fighting everytime"
-                              "These days when i try to explain she tries to skip, that's how it's going these days.Thank your for reading . Have a nice"
-                              "Day.Shit i have to write more to fill up the space. Now it's done,woaaaah!!!",
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                letterSpacing: 0.5,
-                                color: Colors.black54,
-                                fontStyle: FontStyle.normal,
-                              ),
+                    Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                           Constants.articleAbstract,
+                            textAlign: TextAlign.justify,
+                            maxLines: 9,
+                            overflow: TextOverflow.ellipsis,
+                            
+                            style: TextStyle(
+                              letterSpacing: 0.5,
+                              
+                              color: Colors.black54,
+                              fontStyle: FontStyle.normal,
                             ),
                           ),
-                          Positioned(
-                            top: height * 0.229,
-                            child: Container(
-                              width: width,
-                              child: FlatButton(
-                                  onPressed: () {},
-                                  color: Colors.lightBlueAccent,
-                                  child: Text(
-                                    "View In Full Screen",
-                                  )),
-                            ),
-                          )
-                        ],
-                      ),
+                        ),
+                        
+                      ],
                     ),
+                    Center(
+                      child: Container(
+                        width: width*0.95,
+                        child: RaisedButton(
+                            onPressed: () {},
+                            elevation: 8,
+                            color: Colors.lightBlueAccent,
+                            child: Text(
+                              "View In Full Screen",
+                            )),
+                      ),
+                    )
                   ],
                 )
               ],
