@@ -110,6 +110,7 @@ class _PostDetailState extends State<PostDetail> {
     );
   }
 
+  /*adds tag to your post*/
   Widget getTags(List<String> tags) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -130,10 +131,7 @@ class _PostDetailState extends State<PostDetail> {
 
     return Consumer<CommentsList>(
       builder: (context, comments, child) {
-        comments.getAllComments().then((value) {
-          print(value.length);
-          list = value;
-        });
+        list = comments.getAllComments();
 
         if (list != null) {
           return ListView.builder(
@@ -143,37 +141,21 @@ class _PostDetailState extends State<PostDetail> {
               return MyComment(
                 userId: list.elementAt(index).userId,
                 userName: list.elementAt(index).userName,
-                commentMessage: list.elementAt(index).commentMessage,
+                commentMessage: list.elementAt(index).commentMessage??list.elementAt(index).replies.replyMessage,
                 object: list.elementAt(index),
+                mentionedUser: comments.getUser()??" ",
               );
             },
             itemCount: list.length,
           );
         } else {
           return Padding(
-            padding: const EdgeInsets.only(left:8.0),
+            padding: const EdgeInsets.only(left: 8.0),
             child: Text("No comments added"),
           );
         }
       },
     );
-  }
-
-  Widget getComments() {
-    if (messageList == null) {
-      return CircularProgressIndicator();
-    } else {
-      return Expanded(
-        child: ListView.builder(
-          itemCount: messageList.msgList.length,
-          itemBuilder: (context, index) {
-            return Container(
-              child: Text(messageList.msgList.elementAt(index).name),
-            );
-          },
-        ),
-      );
-    }
   }
 
   Widget hashTag(name) {
@@ -214,17 +196,26 @@ class _PostDetailState extends State<PostDetail> {
 }
 
 class MyComment extends StatelessWidget {
-
+  @required
   final int userId;
+  @required
   final String userName;
+  @required
   final String commentMessage;
+  @required
   final Comment object;
+  final String mentionedUser;
 
-  //if image has been already used in a row
+  //with this check if image has been already used in a row
 
   static bool isImgTouched = false;
 
-  MyComment({this.userId, this.userName, this.commentMessage, this.object});
+  MyComment(
+      {this.userId,
+      this.userName,
+      this.commentMessage,
+      this.object,
+      this.mentionedUser});
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +233,7 @@ class MyComment extends StatelessWidget {
     isImgTouched = true;
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 8.0),
       child: ClipRRect(
         child: Image.asset(
           "images/cover.jpeg",
@@ -259,7 +250,7 @@ class MyComment extends StatelessWidget {
     isImgTouched = false;
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.only(left: 8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -268,16 +259,15 @@ class MyComment extends StatelessWidget {
                 style: TextStyle(
                     fontSize: Constants.medium_font_size,
                     fontWeight: FontWeight.bold)),
-            Text(this.commentMessage,
-                style: TextStyle(
-                  fontSize: Constants.small_font_size,
-                )),
+            Text.rich(TextSpan(
+                text: mentionedUser ?? " ",
+                style: TextStyle(backgroundColor: Colors.lightBlueAccent),
+                children: [TextSpan(text: commentMessage)])),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 5.0),
+                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
                   child: InkWell(
                     onTap: () {
                       Provider.of<CommentsList>(context, listen: false)
@@ -290,19 +280,25 @@ class MyComment extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                  child: Text(
-                    "reply",
-                    style: TextStyle(color: Colors.lightBlue),
+                InkWell(
+                  onTap: () {
+                    Provider.of<CommentsList>(context, listen: false)
+                        .setUser(this.userName);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10),
+                    child: Text(
+                      "reply",
+                      style: TextStyle(color: Colors.lightBlue),
+                    ),
                   ),
                 )
               ],
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+              ),
               child: Text(
                   Provider.of<CommentsList>(context).getAllLikes(this.object) ==
                           0

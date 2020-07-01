@@ -18,9 +18,9 @@ class Constants extends ChangeNotifier {
   static const signing ="signing...";
 
   static const articleAbstract =
-      "Aakriti Always likes to fight with me. She accidentally wins over me with big margin on LUDO on Facebook."
-      "She is dumbhead,a real dumbhead, starts fighting with no reason and she "
-      "herself tells me to stop talking because we end of fighting everytime"
-      "These days when i try to explain she tries to skip, that's how it's going these days.Thank your for reading . Have a nice"
+      "Mohan Always likes to fight with me. He accidentally wins over me with big margin on LUDO on Facebook."
+      "He is dumbhead,a real dumbhead, starts fighting with no reason and he "
+      "himself tells me to stop talking because we end of fighting everytime"
+      "These days when i try to explain he tries to skip, that's how it's going these days.Thank your for reading . Have a nice"
       "Day.Shit i have to write more to fill up the space. Now it's done,woaaaah!!!";
 }

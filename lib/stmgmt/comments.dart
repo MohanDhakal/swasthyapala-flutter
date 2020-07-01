@@ -3,6 +3,21 @@ import 'package:swasthyapala_flutter/model/comment.dart';
 
 class CommentsList with ChangeNotifier {
   List<Comment> comments;
+  dynamic _mentionedUser;
+
+
+  void addMentionedUser(value){
+    _mentionedUser=value;
+  }
+
+  void setUser(dynamic  text) {
+    this._mentionedUser = text;
+    notifyListeners();
+  }
+
+  dynamic getUser(){
+    return _mentionedUser;
+  }
 
   CommentsList() {
     comments = new List();
@@ -18,8 +33,8 @@ class CommentsList with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<Comment>> getAllComments() async {
-    return await this.comments;
+  List<Comment> getAllComments() {
+    return this.comments;
   }
 
   getAllLikes(Comment comment) {
