@@ -31,7 +31,7 @@ class CustomImagePicker extends StatelessWidget {
                         if (Platform.isAndroid) {
                           if (await Util.storagePermissionAvailable(context)) {
                             if (await Connection.isConnected() == true) {
-                              UploadImage(context).insertData(BaseAPI.dio);
+                              await UploadImage(context).insertData(BaseAPI.dio);
                             } else {
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text("no internet connection"),

@@ -4,10 +4,10 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/stmgmt/post.dart';
-import 'package:swasthyapala_flutter/stmgmt/user.dart';
+import 'package:swasthyapala_flutter/uis/splash_screen.dart';
+import 'package:swasthyapala_flutter/uis/views/post/add_post.dart';
 import 'package:swasthyapala_flutter/uis/views/post/posts.dart';
 import 'package:swasthyapala_flutter/uis/views/user/profile.dart';
-import 'package:swasthyapala_flutter/uis/views/post/add_post.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,11 +23,62 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
+      home: SplashScreen(),
     );
   }
 }
 
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _page = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        bottomNavigationBar: CurvedNavigationBar(
+          backgroundColor: Colors.greenAccent,
+          index: _page,
+          animationDuration: Duration(milliseconds: 300),
+          items: <Widget>[
+            Icon(Icons.add, size: 30),
+            Icon(Icons.list, size: 30),
+            Icon(Icons.person, size: 30),
+            Icon(
+              Icons.group,
+              size: 30,
+            ),
+          ],
+          onTap: (index) {
+            //Handle button tap
+            setState(() {
+              _page = index;
+            });
+          },
+        ),
+        body: _switchPage());
+  }
+
+  Widget _switchPage() {
+    switch (_page) {
+      case 0:
+        return AddPostBtn();
+        break;
+      case 1:
+        return ChangeNotifierProvider(
+            create: (_) => PostBloc(), child: PostList());
+        break;
+      case 2:
+        return UserProfile();
+        break;
+      default:
+        return PostList();
+    }
+  }
+}
 /*return MultiProvider(
       providers: [
         MultiProvider(providers: [
@@ -51,55 +102,6 @@ class MyApp extends StatelessWidget {
         },
       ),
 //    );*/
-
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _page = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        bottomNavigationBar: CurvedNavigationBar(
-          backgroundColor: Colors.greenAccent,
-          index: _page,
-          animationDuration: Duration(milliseconds: 300),
-          items: <Widget>[
-            Icon(Icons.add, size: 30),
-            Icon(Icons.list, size: 30),
-            Icon(Icons.person, size: 30),
-          ],
-          onTap: (index) {
-            //Handle button tap
-            setState(() {
-              _page = index;
-            });
-          },
-        ),
-        body: _switchPage());
-  }
-
-  Widget _switchPage() {
-    switch (_page) {
-      case 0:
-        return AddPostBtn();
-        break;
-      case 1:
-        return ChangeNotifierProvider(
-            create: (_)=>PostBloc(),
-            child: PostList());
-        break;
-      case 2:
-        return UserProfile();
-        break;
-      default:
-        return PostList();
-    }
-  }
-}
 
 //
 //class Screen1 extends StatelessWidget {

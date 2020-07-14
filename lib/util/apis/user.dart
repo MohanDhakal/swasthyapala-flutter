@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:swasthyapala_flutter/model/user/user.dart';
 import 'package:swasthyapala_flutter/util/apis/base_api.dart';
@@ -14,17 +13,17 @@ class UserApi extends BaseAPI {
   @override
   Future insertData(Dio dio, {data}) async {
     Response response;
+    var user;
     try {
-      final endPoint = '/user/inser_user.php';
+      final endPoint = '/user/insert_user.php';
       final jsonData = jsonEncode(data);
       response = await dio.post(endPoint, data: jsonData);
-      print(response.statusCode);
-      print(response.data);
     } on Exception catch (exception) {
-      print('Exception in Post API: $exception');
+      print('Exception in User API: $exception');
     } catch (error) {
-      print('Error in Post API: $error');
+      print('Error in User API: $error');
     }
+    return response.data["userId"];
   }
 
   @override
@@ -52,22 +51,19 @@ class UserApi extends BaseAPI {
 
   Future validateUser({String username, String password}) async {
     Response response;
-    var user = {
-      "userName": username,
-      "password": password
-    };
+    var user = {"userName": username, "password": password};
+    var result;
     Dio dio = BaseAPI.dio;
 
     try {
       final endPoint = '/user/validate_user.php';
       response = await dio.post(endPoint, data: user);
-
+      result = jsonDecode(response.data);
     } on Exception catch (exception) {
       print('Exception in Post API: $exception');
     } catch (error) {
       print('Error in Post API: $error');
     }
-    return response.data['validated'];
+    return result;
   }
-
 }

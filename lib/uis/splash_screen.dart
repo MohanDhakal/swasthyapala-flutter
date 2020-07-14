@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
-import 'package:swasthyapala_flutter/util/utilmethods.dart';
+import 'package:swasthyapala_flutter/util/services/shared_pref/user_data.dart';
 
-import 'home_screen.dart';
+import '../main.dart';
 import 'views/user/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -34,16 +34,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<bool> _mockCheckForSession() async {
     String user;
 
-    Util().getUser().then((value) {
-      user = value;
-    });
-
-    await Future.delayed(Duration(milliseconds: 2000), () {});
-
+    user = await TempStorage().getUser();
     if (user != null) {
       return true;
     }
-
     return false;
   }
 
@@ -54,7 +48,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToLogin() {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (BuildContext context) => LoginScreen()));
+        builder: (BuildContext context) => ChangeNotifierProvider<UserBloc>(
+            create: (_) => UserBloc(), child: LoginScreen())));
   }
 
   @override

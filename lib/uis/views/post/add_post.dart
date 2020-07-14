@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:swasthyapala_flutter/enum/view_state.dart';
 import 'package:swasthyapala_flutter/model/posts/post.dart';
 import 'package:swasthyapala_flutter/model/posts/tag_items.dart';
 import 'package:swasthyapala_flutter/stmgmt/image_progress.dart';
 import 'package:swasthyapala_flutter/stmgmt/post.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/uis/views/post/widgets/pick_image.dart';
 import 'package:swasthyapala_flutter/uis/views/post/widgets/tags.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
@@ -227,13 +229,14 @@ class _AddPostScreenState extends State<AddPostScreen>
     );
   }
 
-  _addPost() {
+  _addPost() async {
     final newImage = Provider.of<ImageProgress>(context, listen: false);
+    final user = Provider.of<UserBloc>(context, listen: false);
     var allTags = Tags.getAllTags();
     var post = Post();
 
-    post.userId = 40;
-    post.imageId = 34;
+    post.userId = await user.getUserId();
+    post.imageId = newImage.imageId??null;
     post.title = _titleController.text;
     post.content = _contentController.text;
 
@@ -244,7 +247,18 @@ class _AddPostScreenState extends State<AddPostScreen>
         post.tags = '${post.tags},${allTags.elementAt(index)}';
       }
     });
-    Provider.of<PostBloc>(context).addNewPost( post);
+    final newPost=Provider.of<PostBloc>(context, listen: false);
+    newPost.addNewPost(post);
+
+    //todo: edit this to handle once the post is uploaded or there is an error uploading a post
+    //and go to next page accordingly
+    if(newPost.state==ViewState.active){
+
+    }else if(newPost.state==ViewState.idle){
+
+    }else{
+
+    }
   }
 }
 

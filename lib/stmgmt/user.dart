@@ -10,9 +10,10 @@ class UserBloc extends BaseModel {
 
   Future addNewUser(User user) async {
     setState(ViewState.active);
-    await UserApi().insertData(BaseAPI.dio, data: user);
-    await TempStorage().putUser(user.userName, user.password);
+    int userId = await UserApi().insertData(BaseAPI.dio, data: user);
+    await TempStorage().putUser(user.userName, user.password, userId);
     setState(ViewState.idle);
+    return userId;
   }
 
   void setUserWithId(id) async {
@@ -21,12 +22,17 @@ class UserBloc extends BaseModel {
     setState(ViewState.idle);
   }
 
-
-  void validateUser(String userName, String password) async {
+  Future validateUser(String userName, String password) async {
     setState(ViewState.active);
-    bool validated =
+    var validationResponse =
         await UserApi().validateUser(username: userName, password: password);
+
     await TempStorage().putUser(userName, password);
-    validated ? setState(ViewState.idle) : setState(ViewState.active);
+    setState(ViewState.idle);
+    return validationResponse['validated'];
+  }
+
+  Future getUserId() async {
+    await TempStorage().getUserId();
   }
 }

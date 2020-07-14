@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/enum/view_state.dart';
 import 'package:swasthyapala_flutter/model/user/user.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
-import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/views/user/login_screen.dart';
 import 'package:swasthyapala_flutter/util/services/connection.dart';
 import 'package:swasthyapala_flutter/util/validators.dart';
@@ -160,7 +159,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
+                  MaterialPageRoute(builder: (context) => ChangeNotifierProvider<UserBloc>(
+                      create: (_)=>UserBloc(),
+                      child: LoginScreen())));
             },
             splashColor: Colors.redAccent,
           )
@@ -169,18 +170,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void handleSignUp(BuildContext context) {
-    final userBloc = Provider.of<UserBloc>(context);
+  void handleSignUp(BuildContext context) async {
+    //todo: --->important --also check for existing user before adding the new user
+    final userBloc = Provider.of<UserBloc>(
+      context,
+      listen: false
+    );
     if (connectedToInternet) {
       if (_formKey.currentState.validate()) {
         User newUser = User.name(myPhoneController.text, myEmailController.text,
             myNameController.text, myPasswordController.text);
-        userBloc.addNewUser(newUser);
+        showStatusDialog(Constants.SIGNING);
+        int userId = await userBloc.addNewUser(newUser);
         if (userBloc.state == ViewState.idle) {
-          Navigator.pop(context);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeScreen()));
-        } else {
+          if (userId == null) {
+            //if validation is not passed show this snackbar
+            Scaffold.of(_formKey.currentState.context).showSnackBar(
+                SnackBar(content: Text("signinig up failed,try again")));
+          } else {
+            Navigator.pop(context);
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
+        } else if (userBloc.state == ViewState.active) {
           showStatusDialog(Constants.SIGNING);
         }
       } else {

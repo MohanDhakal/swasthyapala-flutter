@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/stmgmt/image_progress.dart';
 import 'package:swasthyapala_flutter/util/services/converter.dart';
+import 'package:swasthyapala_flutter/util/services/shared_pref/user_data.dart';
 import 'package:swasthyapala_flutter/util/services/storage_acess.dart';
 
 import 'base_api.dart';
@@ -26,10 +27,10 @@ class UploadImage extends BaseAPI {
       print('Error picking image: ${e.error}');
     });
     progress.file = File(_image.path);
+
     String fileName = _image.path.split('/').last;
-    print("fileName: $fileName");
     FormData formData = new FormData.fromMap({
-      "userId": 22,
+      "userId": TempStorage().getUserId(),
       "image": await MultipartFile.fromFile(_image.path, filename: fileName)
     });
 
@@ -49,12 +50,11 @@ class UploadImage extends BaseAPI {
           progress.progressValue = 0.9;
         else
           progress.progressValue = 1.0;
-
         print(fraction);
 //        progress.progressValue = Util.roundThisNum(fraction, 3);
       });
       var jsonData = response.data;
-      print(jsonData);
+      progress.imageId = jsonData["imageId"];
     } on Exception catch (exception) {
       print(' EXCEPTION CAUGHT: $exception');
     } catch (error) {

@@ -9,6 +9,7 @@ class ImageProgress extends BaseModel {
   double _progressValue;
   File _file;
   String imageUri;
+  int imageId;
 
   double get progressValue => _progressValue;
 

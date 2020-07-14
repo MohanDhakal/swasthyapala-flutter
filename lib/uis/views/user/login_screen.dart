@@ -1,11 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/enum/view_state.dart';
+import 'package:swasthyapala_flutter/main.dart';
 import 'package:swasthyapala_flutter/required_icons_.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
-import 'package:swasthyapala_flutter/uis/home_screen.dart';
 import 'package:swasthyapala_flutter/uis/views/user/signup_screen.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/util/services/connection.dart';
@@ -29,6 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    myNameController = TextEditingController();
+    myPasswordController = TextEditingController();
     //checks network connectivity
     Connection.isConnected().then((value) {
       connectedToInternet = value;
@@ -40,23 +41,23 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
           child: ListView(
-            children: <Widget>[
-              getBanner(context),
-              Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          getUserNameFeild(),
-                          getPasswordFeild(),
-                          getLoginButton(context),
-                          getBottomWidgetList(context)
-                        ],
-                      )))
-            ],
-          )),
+        children: <Widget>[
+          getBanner(context),
+          Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      getUserNameFeild(),
+                      getPasswordFeild(),
+                      getLoginButton(context),
+                      getBottomWidgetList(context)
+                    ],
+                  )))
+        ],
+      )),
     );
   }
 
@@ -77,7 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return SignUpScreen();
+                return ChangeNotifierProvider<UserBloc>(
+                  create: (_) => UserBloc(),
+                  child: SignUpScreen(),
+                );
               }));
             },
             splashColor: Colors.redAccent,
@@ -91,10 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Container(
-        width: MediaQuery
-            .of(context)
-            .size
-            .width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.9,
         height: 50,
         child: RaisedButton(
           color: Constants.THEME_COLOR,
@@ -134,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
         keyboardType: TextInputType.multiline,
-        controller: myNameController,
+        controller: myPasswordController,
         maxLines: null,
         textDirection: TextDirection.ltr,
         decoration: InputDecoration(
@@ -196,14 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
             color: Constants.THEME_COLOR,
             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(80))),
-        height: MediaQuery
-            .of(context)
-            .size
-            .height * 0.4,
-        width: MediaQuery
-            .of(context)
-            .size
-            .width,
+        height: MediaQuery.of(context).size.height * 0.4,
+        width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -239,12 +234,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget getLoadingWidget() {
     return (this.errorText == Constants.LOGGING)
         ? SpinKitFadingCube(
-      color: Colors.blue,
-      size: 50,
-    )
+            color: Colors.blue,
+            size: 50,
+          )
         : SizedBox(
-      height: 10,
-    );
+            height: 10,
+          );
   }
 
   void showStatusDialog(placeHolderText) {
@@ -263,16 +258,16 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           actions: [
             (placeHolderText == Constants.FAILED_SIGNUP ||
-                placeHolderText == Constants.CONNECTION_ERROR_MSG)
+                    placeHolderText == Constants.CONNECTION_ERROR_MSG)
                 ? FlatButton(
-                onPressed: () {
-                  //goes to login page again
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LoginScreen()));
-                },
-                child: Text("try again"))
+                    onPressed: () {
+                      //goes to login page again
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()));
+                    },
+                    child: Text("try again"))
                 : Container(),
           ],
         ),
@@ -282,15 +277,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   //client validation of the form
 
-  void handleLogin() {
-    final user = Provider.of<UserBloc>(context,);
-    user.validateUser(myNameController.text, myPasswordController.text);
+  void handleLogin() async {
+    final user = Provider.of<UserBloc>(context, listen: false);
+    bool validated = await user.validateUser(
+        myNameController.text, myPasswordController.text);
+    print(validated);
     if (user.state == ViewState.active) {
       showStatusDialog(Constants.LOGGING);
-    } else {
-      Navigator.pop(context);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    } else if (user.state == ViewState.idle) {
+      if (validated) {
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } else {
+        Scaffold.of(_formKey.currentContext).showSnackBar(SnackBar(
+          content: Text("username of password didn't match"),
+        ));
+      }
     }
   }
 }
