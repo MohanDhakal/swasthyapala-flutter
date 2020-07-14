@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/model/comment.dart';
 import 'package:swasthyapala_flutter/model/messages.dart';
+import 'package:swasthyapala_flutter/model/replies.dart';
+import 'package:swasthyapala_flutter/stmgmt/comment.dart';
 import 'package:swasthyapala_flutter/stmgmt/comments.dart';
-import 'package:swasthyapala_flutter/uis/comments.dart';
+import 'package:swasthyapala_flutter/uis/views/post/widgets/comments.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
 
 class PostDetail extends StatefulWidget {
@@ -28,8 +30,15 @@ class _PostDetailState extends State<PostDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<CommentsList>(
-      create: (_) => CommentsList(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CommentsList>(
+          create: (_) => CommentsList(),
+        ),
+        ChangeNotifierProvider<Comment>(
+          create: (_) => Comment(),
+        ),
+      ],
       child: Scaffold(
         body: ListView(
           children: <Widget>[
@@ -50,7 +59,7 @@ class _PostDetailState extends State<PostDetail> {
                       Container(
                         margin: EdgeInsets.all(12),
                         child: Text(
-                          Constants.articleAbstract,
+                          Constants.ARTICLE_ABSTRACT,
                           textAlign: TextAlign.justify,
                           maxLines: 50,
                           style: TextStyle(
@@ -65,7 +74,21 @@ class _PostDetailState extends State<PostDetail> {
               ),
             ),
             PostCommentBox(),
-            getCommentsList()
+            Consumer<CommentsList>(builder: (context, comments, child) {
+              return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: comments.getAllComments().length,
+                  physics: ClampingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    var myComment = comments.getAllComments().elementAt(index);
+                    return MyComment(
+                      commentMessage: myComment.commentMessage,
+                      userName: myComment.userName,
+                      userId: myComment.userId,
+                      object: myComment,
+                    );
+                  });
+            })
           ],
         ),
       ),
@@ -101,7 +124,7 @@ class _PostDetailState extends State<PostDetail> {
               Text(
                 post,
                 style: TextStyle(
-                    color: Colors.black, fontSize: Constants.small_font_size),
+                    color: Colors.black, fontSize: Constants.SMALL_FONT_SIZE),
               ),
             ],
           ),
@@ -110,22 +133,8 @@ class _PostDetailState extends State<PostDetail> {
     );
   }
 
-  /*adds tag to your post*/
-  Widget getTags(List<String> tags) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          hashTag("health"),
-          hashTag("health and food"),
-          hashTag("availablity"),
-          hashTag("accessibility")
-        ],
-      ),
-    );
-  }
 
+/*
   Widget getCommentsList() {
     List<Comment> list;
 
@@ -139,11 +148,18 @@ class _PostDetailState extends State<PostDetail> {
             physics: ClampingScrollPhysics(),
             itemBuilder: (context, index) {
               return MyComment(
-                userId: list.elementAt(index).userId,
-                userName: list.elementAt(index).userName,
-                commentMessage: list.elementAt(index).commentMessage??list.elementAt(index).replies.replyMessage,
+                userId: list
+                    .elementAt(index)
+                    .userId,
+                userName: list
+                    .elementAt(index)
+                    .userName,
+                commentMessage: list
+                    .elementAt(index)
+                    .commentMessage ??
+                    list.elementAt(index),
                 object: list.elementAt(index),
-                mentionedUser: comments.getUser()??" ",
+                mentionedUser: comments.getUser() ?? " ",
               );
             },
             itemCount: list.length,
@@ -156,32 +172,9 @@ class _PostDetailState extends State<PostDetail> {
         }
       },
     );
-  }
+  }*/
 
-  Widget hashTag(name) {
-    return UnconstrainedBox(
-      child: Container(
-          height: 30,
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey,
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  12,
-                ),
-              )),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                name,
-                style: TextStyle(fontSize: Constants.small_font_size),
-              ),
-            ),
-          )),
-    );
-  }
+
 
   Future<MessageList> _fetchJsonData() async {
     String jsonString = await _loadJsonFromAsset();
@@ -203,19 +196,18 @@ class MyComment extends StatelessWidget {
   @required
   final String commentMessage;
   @required
-  final Comment object;
-  final String mentionedUser;
+  final NewComment object;
 
   //with this check if image has been already used in a row
 
   static bool isImgTouched = false;
 
-  MyComment(
-      {this.userId,
-      this.userName,
-      this.commentMessage,
-      this.object,
-      this.mentionedUser});
+  MyComment({
+    this.userId,
+    this.userName,
+    this.commentMessage,
+    this.object,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,63 +244,66 @@ class MyComment extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(left: 8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(this.userName,
-                style: TextStyle(
-                    fontSize: Constants.medium_font_size,
-                    fontWeight: FontWeight.bold)),
-            Text.rich(TextSpan(
-                text: mentionedUser ?? " ",
-                style: TextStyle(backgroundColor: Colors.lightBlueAccent),
-                children: [TextSpan(text: commentMessage)])),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, top: 10.0),
-                  child: InkWell(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(this.userName,
+                  style: TextStyle(
+                      fontSize: Constants.MEDIUM_FONT_SIZE,
+                      fontWeight: FontWeight.bold)),
+              Consumer<Comment>(builder: (context, comment, child) {
+                return comment.getMentionedUser() != null
+                    ? Text.rich(TextSpan(children: [
+                        TextSpan(
+                          text: '@ ${comment.getMentionedUser()}',
+                          style: TextStyle(
+                              backgroundColor: Colors.lightBlueAccent),
+                        ),
+                        TextSpan(text: commentMessage),
+                      ]))
+                    : Text(commentMessage);
+              }),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, top: 10.0),
+                    child: InkWell(
+                      onTap: () {
+                        Provider.of<Comment>(context, listen: false).addLike();
+                      },
+                      splashColor: Constants.THEME_COLOR_1,
+                      child: Icon(
+                        Icons.thumb_up,
+                        size: 15,
+                      ),
+                    ),
+                  ),
+                  InkWell(
                     onTap: () {
-                      Provider.of<CommentsList>(context, listen: false)
-                          .addLikes(this.object);
+                      var rep = Replies(mentionedUserName: userName);
+                      Provider.of<Comment>(context, listen: false)
+                          .addReply(rep);
                     },
-                    splashColor: Constants.them_color_1,
-                    child: Icon(
-                      Icons.thumb_up,
-                      size: 15,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, top: 10),
+                      child: Text(
+                        "reply",
+                        style: TextStyle(color: Colors.lightBlue),
+                      ),
                     ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Provider.of<CommentsList>(context, listen: false)
-                        .setUser(this.userName);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0, top: 10),
-                    child: Text(
-                      "reply",
-                      style: TextStyle(color: Colors.lightBlue),
-                    ),
-                  ),
-                )
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
+                  )
+                ],
               ),
-              child: Text(
-                  Provider.of<CommentsList>(context).getAllLikes(this.object) ==
-                          0
-                      ? " "
-                      : Provider.of<CommentsList>(context)
-                          .getAllLikes(this.object)
-                          .toString()),
-            ),
-          ],
-        ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                ),
+                child: Consumer<Comment>(builder: (context, comment, child) {
+                  return Text(comment.getLike() as String);
+                }),
+              )
+            ]),
       ),
     );
   }

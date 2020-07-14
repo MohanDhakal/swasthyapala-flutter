@@ -211,7 +211,7 @@ class LikesFollowCount extends StatelessWidget {
                 "877k",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: Constants.medium_font_size),
+                    fontSize: Constants.MEDIUM_FONT_SIZE),
                 textAlign: TextAlign.center,
               ),
               Text(
@@ -231,7 +231,7 @@ class LikesFollowCount extends StatelessWidget {
                 "877k",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: Constants.medium_font_size),
+                    fontSize: Constants.MEDIUM_FONT_SIZE),
                 textAlign: TextAlign.center,
               ),
               Text(
@@ -251,7 +251,7 @@ class LikesFollowCount extends StatelessWidget {
                 "877k",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: Constants.medium_font_size),
+                    fontSize: Constants.MEDIUM_FONT_SIZE),
                 textAlign: TextAlign.center,
               ),
               Text(

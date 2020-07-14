@@ -8,7 +8,7 @@ import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/util/utilmethods.dart';
 
 import 'home_screen.dart';
-import 'login_screen.dart';
+import 'views/user/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static const String routeName = "/splash";
@@ -68,8 +68,8 @@ class _SplashScreenState extends State<SplashScreen> {
               Opacity(opacity: 0.5, child: Image.asset("images/bg.png")),
               Shimmer.fromColors(
                 period: Duration(milliseconds: 500),
-                baseColor: Constants.them_color_1,
-                highlightColor: Constants.theme_color,
+                baseColor: Constants.THEME_COLOR_1,
+                highlightColor: Constants.THEME_COLOR,
                 child: Container(
                   padding: EdgeInsets.all(16.0),
                   child: Text(

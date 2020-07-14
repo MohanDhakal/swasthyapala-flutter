@@ -1,57 +1,32 @@
-import 'package:flutter/cupertino.dart';
-import 'package:swasthyapala_flutter/model/user.dart';
+import 'package:swasthyapala_flutter/enum/view_state.dart';
+import 'package:swasthyapala_flutter/model/user/user.dart';
+import 'package:swasthyapala_flutter/stmgmt/base.dart';
+import 'package:swasthyapala_flutter/util/apis/base_api.dart';
+import 'package:swasthyapala_flutter/util/apis/user.dart';
+import 'package:swasthyapala_flutter/util/services/shared_pref/user_data.dart';
 
-class User with ChangeNotifier {
-  NewUser _newUser = NewUser();
+class UserBloc extends BaseModel {
+  User user;
 
-  NewUser getNewUser(user) {
-    return user;
+  Future addNewUser(User user) async {
+    setState(ViewState.active);
+    await UserApi().insertData(BaseAPI.dio, data: user);
+    await TempStorage().putUser(user.userName, user.password);
+    setState(ViewState.idle);
   }
 
-  setUserName(String userName) {
-    _newUser.userName = userName;
-    notifyListeners();
+  void setUserWithId(id) async {
+    setState(ViewState.active);
+    user = await UserApi().getARow(BaseAPI.dio, id: id);
+    setState(ViewState.idle);
   }
 
-  setPhoneNumber(String phone) {
-    _newUser.phone = phone;
-    notifyListeners();
-  }
 
-  setEmail(String email) {
-    _newUser.email = email;
-    notifyListeners();
-  }
-
-  setId(int id) {
-    _newUser.id = id;
-    notifyListeners();
-  }
-
-  setPassword(String password) {
-    _newUser.password = password;
-    notifyListeners();
-  }
-
-//gettters
-
-  String getPhone() {
-    return _newUser.phone;
-  }
-
-  String getEmail() {
-    return _newUser.email;
-  }
-
-  int getId() {
-    return _newUser.id;
-  }
-
-  String getUserName() {
-    return _newUser.userName;
-  }
-
-  String getPassword() {
-    return _newUser.password;
+  void validateUser(String userName, String password) async {
+    setState(ViewState.active);
+    bool validated =
+        await UserApi().validateUser(username: userName, password: password);
+    await TempStorage().putUser(userName, password);
+    validated ? setState(ViewState.idle) : setState(ViewState.active);
   }
 }

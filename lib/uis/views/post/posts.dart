@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-import 'package:swasthyapala_flutter/model/comment.dart';
-import 'package:swasthyapala_flutter/stmgmt/comments.dart';
+import 'package:swasthyapala_flutter/enum/view_state.dart';
+import 'package:swasthyapala_flutter/stmgmt/image_progress.dart';
+import 'package:swasthyapala_flutter/stmgmt/post.dart';
+import 'package:swasthyapala_flutter/stmgmt/user.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
 import 'package:swasthyapala_flutter/util/utility_widget.dart';
-
 
 class PostList extends StatefulWidget {
   static const routeName = "/postlist";
@@ -15,16 +17,65 @@ class PostList extends StatefulWidget {
 
 class _PostListState extends State<PostList> {
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 0)).then((value) {
+      Provider.of<PostBloc>(context, listen: false).addPostListToUi();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        children: <Widget>[Post(), Post()],
-      ),
-    );
+    return Container(child: Consumer<PostBloc>(
+      builder: (context, posts, child) {
+        return posts.state == ViewState.active
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView.builder(
+                itemBuilder: (context, index) {
+                  final newPost = posts.getAllPost.elementAt(index);
+                  return MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(
+                        create: (_) => UserBloc(),
+                      ),
+                      ChangeNotifierProvider(
+                        create: (_) => ImageProgress(),
+                      )
+                    ],
+                    child: Post(
+                      title: newPost.title,
+                      content: newPost.content,
+                      time: newPost.dateTime,
+                      tags: newPost.tags,
+                      userId: newPost.userId,
+                      imageId: newPost.imageId,
+                    ),
+                  );
+                },
+                itemCount: posts.getAllPost.length,
+              );
+      },
+    ));
   }
 }
 
 class Post extends StatefulWidget {
+  final String title, content;
+  final String tags;
+  final String time;
+  final int userId;
+  final int imageId;
+
+  Post(
+      {this.time,
+      this.content,
+      this.tags,
+      this.title,
+      this.userId,
+      this.imageId});
+
   static const routeName = "/post";
 
   @override
@@ -32,15 +83,26 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  Color bkmark_selected = Colors.black38;
-  Color share_selected = Colors.black38;
-  Color like_selected = Colors.black38;
+  Color bkmarkSelected = Colors.black38;
+  Color shareSelected = Colors.black38;
+  Color likeSelected = Colors.black38;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserBloc>(context, listen: false)
+          .setUserWithId(widget.userId);
+      Provider.of<ImageProgress>(context, listen: false)
+          .addImageUri(context, widget.imageId);
+    });
 
     //upper container ko width and height
 
@@ -66,7 +128,7 @@ class _PostState extends State<Post> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "My Favourite Color",
+                          widget.title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
@@ -87,21 +149,21 @@ class _PostState extends State<Post> {
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: Text(
-                            "9:30 pm",
+                            widget.time.substring(12, 16),
                             style: TextStyle(color: Colors.black38),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 15.0),
                           child: Text(
-                            "#drink",
+                            widget.tags.split(',').first ?? ' ',
                             style: TextStyle(color: Colors.black38),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 5.0),
                           child: Text(
-                            "#coffee",
+                            widget.tags.split(',').last ?? ' ',
                             style: TextStyle(color: Colors.black38),
                           ),
                         ),
@@ -112,13 +174,7 @@ class _PostState extends State<Post> {
                 Container(
                   margin: EdgeInsets.all(10),
                   child: Text(
-                    "this is the sample text to fill up the space"
-                    "this is the sample text to fill up the space."
-                    "this is the sample text to fill up the space "
-                    "this is the sample text to fill up the space."
-                    "this is the sample text to fill up the space"
-                    "this is the sample text to fill up the space"
-                    "this is the sample text to fill up the space.",
+                    widget.content,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -155,21 +211,28 @@ class _PostState extends State<Post> {
           child: Container(
               height: upperContainerHeight,
               width: upperContainerWidth,
-              child: Image.asset(
-                //give dynamic uri in this name of string
-                "images/bg.png",
-                fit: BoxFit.cover,
-                color: Colors.black12,
-                //screen
-                colorBlendMode: BlendMode.screen,
+              child: Consumer<ImageProgress>(
+                builder: (context, image, child) {
+                  return image.state == ViewState.active
+                      ? SpinKitFadingGrid(
+                          color: Colors.greenAccent,
+                        )
+                      : Image.network(
+                          image.imageUri ?? Constants.defaultImageUri,
+                          fit: BoxFit.cover,
+                          color: Colors.black12,
+                          //screen
+                          colorBlendMode: BlendMode.screen,
+                        );
+                },
               )),
         ),
         Positioned(
-          top: upperContainerHeight * 0.2,
-          left: upperContainerWidth * 0.8,
+          top: upperContainerHeight * 0.1,
+          left: upperContainerWidth * 0.75,
           child: ClipRRect(
             child: Image.asset(
-              "images/cover.jpeg",
+              "images/mohan.jpg",
               fit: BoxFit.cover,
               height: 50,
               width: 50,
@@ -177,90 +240,87 @@ class _PostState extends State<Post> {
             borderRadius: BorderRadius.circular(24),
           ),
         ),
-        Positioned(
-          top: upperContainerHeight * 0.22,
-          left: upperContainerWidth * 0.40,
-          child: Text(
-            "Mohan Dhakal",
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
+        Consumer<UserBloc>(
+          builder: (context, newUser, child) {
+            return Positioned(
+              top: upperContainerHeight * 0.12,
+              left: upperContainerWidth * 0.40,
+              child: Text(
+                newUser.state == ViewState.active || newUser.user == null
+                    ? ""
+                    : newUser.user.userName,
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            );
+          },
         ),
         Positioned(
-          top: upperContainerHeight * 0.30,
+          top: upperContainerHeight * 0.20,
           left: upperContainerWidth * 0.40,
           child: Text(
             "AUTHOR",
             style: TextStyle(
-                color: Colors.black, fontSize: Constants.small_font_size),
+                color: Colors.black, fontSize: Constants.SMALL_FONT_SIZE),
           ),
         ),
         Positioned(
-          top: upperContainerHeight * 0.40,
+          top: upperContainerHeight * 0.30,
           left: upperContainerWidth * 0.35,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               IconButton(
                 icon: Icon(
                   Icons.bookmark,
-                  color: bkmark_selected,
+                  color: bkmarkSelected,
                 ),
                 iconSize: 20,
                 onPressed: () {
                   setState(() {
-                    if (bkmark_selected == Colors.black38) {
-                      bkmark_selected = Colors.blue;
+                    if (bkmarkSelected == Colors.black38) {
+                      bkmarkSelected = Colors.blue;
                     } else {
-                      bkmark_selected = Colors.black38;
+                      bkmarkSelected = Colors.black38;
                     }
-
                   });
                 },
               ),
               Padding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(8),
                 child: IconButton(
                   icon: Icon(
                     Icons.share,
                     size: 20,
-                    color: share_selected,
+                    color: shareSelected,
                   ),
                   onPressed: () {
                     setState(() {
-                      if (share_selected == Colors.black38) {
-                        share_selected = Colors.blue;
+                      if (shareSelected == Colors.black38) {
+                        shareSelected = Colors.blue;
                       } else {
-                        share_selected = Colors.black38;
+                        shareSelected = Colors.black38;
                       }
                     });
                   },
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(8),
                 child: IconButton(
-
                   icon: Icon(
                     Icons.thumb_up,
                     size: 20,
-                    color: like_selected,
+                    color: likeSelected,
                   ),
                   onPressed: () {
-                    if (like_selected == Colors.black38) {
+                    if (likeSelected == Colors.black38) {
                       setState(() {
-                        like_selected = Colors.blue;
+                        likeSelected = Colors.blue;
                       });
-                      //todo: update the comment section with dynamic parameters
-                      Provider.of<CommentsList>(context,listen: false).addLikes(new Comment(
-                        commentsId: 1,
-                        commentMessage: "This is my own comment and nobody can take over it hai guys!",
-                        userId: 2,
-                        userName: "Mohan Kumar Dhakal",
-                        likes: 2
-                      ));
                     } else {
                       setState(() {
-                        like_selected = Colors.black38;
+                        likeSelected = Colors.black38;
                       });
                     }
                   },

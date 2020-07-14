@@ -2,28 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:swasthyapala_flutter/model/comment.dart';
 
 class CommentsList with ChangeNotifier {
-  List<Comment> comments;
-  dynamic _mentionedUser;
-
-
-  void addMentionedUser(value){
-    _mentionedUser=value;
-  }
-
-  void setUser(dynamic  text) {
-    this._mentionedUser = text;
-    notifyListeners();
-  }
-
-  dynamic getUser(){
-    return _mentionedUser;
-  }
+  List<NewComment> comments;
 
   CommentsList() {
     comments = new List();
   }
 
-  addComment(Comment comment) {
+  addComment(NewComment comment) {
     comments.add(comment);
     notifyListeners();
   }
@@ -33,21 +18,8 @@ class CommentsList with ChangeNotifier {
     notifyListeners();
   }
 
-  List<Comment> getAllComments() {
+  List<NewComment> getAllComments() {
     return this.comments;
   }
 
-  getAllLikes(Comment comment) {
-    return comment.getLikes(comment);
-  }
-
-  addLikes(Comment comment) {
-    comment.addLikes(comment);
-    notifyListeners();
-  }
-
-  removeLikes(Comment comment) {
-    comment.removeLikes(comment);
-    notifyListeners();
-  }
 }

@@ -7,7 +7,6 @@ import 'package:swasthyapala_flutter/util/utility_widget.dart';
 class BlogPosts extends StatelessWidget {
   static const routeName = "blog";
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -71,7 +70,7 @@ class BlogPosts extends StatelessWidget {
                         "AUTHOR",
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: Constants.small_font_size),
+                            fontSize: Constants.SMALL_FONT_SIZE),
                       ),
                     ),
                     Positioned(
@@ -82,20 +81,20 @@ class BlogPosts extends StatelessWidget {
                         children: <Widget>[
                           Icon(
                             Icons.bookmark_border,
-                            size: Constants.medium_icon_size,
+                            size: Constants.MEDIUM_ICON_SIZE,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 30.0),
                             child: Icon(
                               Icons.share,
-                              size: Constants.medium_icon_size,
+                              size: Constants.MEDIUM_ICON_SIZE,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 30.0),
                             child: Icon(
                               Icons.thumb_up,
-                              size: Constants.medium_icon_size,
+                              size: Constants.MEDIUM_ICON_SIZE,
                               color: Colors.black,
                             ),
                           )
@@ -157,7 +156,7 @@ class BlogPosts extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                           Constants.articleAbstract,
+                           Constants.ARTICLE_ABSTRACT,
                             textAlign: TextAlign.justify,
                             maxLines: 9,
                             overflow: TextOverflow.ellipsis,

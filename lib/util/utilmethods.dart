@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swasthyapala_flutter/model/messages.dart';
 import 'package:swasthyapala_flutter/stmgmt/user.dart';
@@ -24,12 +25,12 @@ class Util {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(key);
   }
-
-  void putUser(User args) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("user", args.getUserName());
-    prefs.setString("pass", args.getPassword());
-  }
+//
+//  void putUser(User args) async {
+//    SharedPreferences prefs = await SharedPreferences.getInstance();
+//    prefs.setString("user", args.getUserName());
+//    prefs.setString("pass", args.getPassword());
+//  }
 
   Future<MessageList> fetchJsonData() async {
     String jsonString = await _loadJsonFromAsset();
@@ -41,36 +42,46 @@ class Util {
     return await rootBundle.loadString('json/directs.json');
   }
 
-  List<BoxShadow> showShadow() {
-    return [
+  List<BoxShadow>showCustomShadow(){
+    return[
       BoxShadow(
-        blurRadius: 15,
-        offset: -Offset(5, 5),
-        color: Colors.white,
+        spreadRadius: 1,
+        blurRadius: 0,
+        color: Colors.blue.withOpacity(0.5),
       ),
-      BoxShadow(
-        blurRadius: 15,
-        offset: Offset(4.5, 4.5),
-        color: kDarkShadow,
-      )
+
     ];
   }
 
-  List<BoxShadow> showInnerShadow() {
-    return [
-      BoxShadow(
-        blurRadius: 15,
-        offset: Offset(5, 5),
-        color: Colors.white,
-      ),
-      BoxShadow(
-        blurRadius: 15,
-        offset: -Offset(4.5, 4.5),
-        color: kDarkShadow,
-      ),
-    ];
+
+  //rounds the double value to the given decimal place and  return double itself
+
+  static double roundThisNum(double num, int roundTo) {
+    return double.parse(num.toStringAsFixed(3));
+
   }
 
-  final kOrange = Color.fromRGBO(238, 134, 48, 1); // rgb(238, 134, 48)
-  final kDarkShadow = Color.fromRGBO(216, 213, 208, 1); // rgb(216, 213, 208)
+  //get storage permission on android
+  static Future<bool> storagePermissionAvailable(context) async {
+    var storagePermissionStatus = await Permission.storage.status;
+    if (storagePermissionStatus.isGranted) {
+      print('Permission: granted already');
+      return true;
+    } else if (storagePermissionStatus.isUndetermined) {
+      storagePermissionStatus = await Permission.storage.request();
+      if (storagePermissionStatus.isGranted) {
+        print('Permission: granted');
+        return true;
+      }
+    } else if (storagePermissionStatus.isDenied) {
+      print('Permission: denied');
+
+      return false;
+    } else if (storagePermissionStatus.isRestricted) {
+      print('Permission: restricted');
+      return false;
+    }
+    return false;
+  }
+
 }

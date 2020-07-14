@@ -1,23 +1,22 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 
-class Constants extends ChangeNotifier {
-  static const double small_font_size = 12;
-  static const double medium_font_size = 15;
+class Constants  {
+  static const double SMALL_FONT_SIZE = 12;
+  static const double MEDIUM_FONT_SIZE = 15;
 
-  static const theme_color = Color(0xff388e3c);
-  static const them_color_1 = Color(0xff47F97D);
-  static const double icon_size = 24;
-  static const double medium_icon_size = 18;
+  static const THEME_COLOR = Color(0xff388e3c);
+  static const THEME_COLOR_1 = Color(0xff47F97D);
+  static const double ICON_SIZE = 24;
+  static const double MEDIUM_ICON_SIZE = 18;
 
-  static const connectionErrorMessage = "no inernet available";
-  static const failedSignup = "failed to signup,retry";
-  static const failedLogin = "failed to login,retry";
-  static const logging = "logging in...";
-  static const signing ="signing...";
-
-  static const articleAbstract =
+  static const CONNECTION_ERROR_MSG = "no inernet available";
+  static const FAILED_SIGNUP = "failed to signup,retry";
+  static const FAILED_LOGIN = "failed to login,retry";
+  static const LOGGING = "logging in...";
+  static const SIGNING ="signing...";
+  static const defaultImageUri="http://swasthyapala.com/swasthyapala/images/us2/dart.png";
+  static const ARTICLE_ABSTRACT =
       "Mohan Always likes to fight with me. He accidentally wins over me with big margin on LUDO on Facebook."
       "He is dumbhead,a real dumbhead, starts fighting with no reason and he "
       "himself tells me to stop talking because we end of fighting everytime"

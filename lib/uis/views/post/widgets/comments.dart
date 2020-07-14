@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:swasthyapala_flutter/model/comment.dart';
 import 'package:swasthyapala_flutter/model/replies.dart';
+import 'package:swasthyapala_flutter/stmgmt/comment.dart';
 import 'package:swasthyapala_flutter/stmgmt/comments.dart';
 import 'package:swasthyapala_flutter/util/constants.dart';
-
-import '../stmgmt/comments.dart';
 
 class PostCommentBox extends StatefulWidget {
   static const String routeName = "post_comment";
@@ -51,14 +50,14 @@ class _PostCommentBoxState extends State<PostCommentBox> {
   Widget build(BuildContext context) {
     return Material(
       child: SingleChildScrollView(
-        child: Consumer<CommentsList>(
+        child: Consumer<Comment>(
           builder: (context, commentDetail, child) {
             return Form(
               child: Container(
                 height: 80,
                 margin: EdgeInsets.all(5),
                 child: TextFormField(
-                  style: TextStyle(fontSize: Constants.medium_font_size),
+                  style: TextStyle(fontSize: Constants.MEDIUM_FONT_SIZE),
                   maxLength: 200,
                   enableSuggestions: true,
                   autocorrect: true,
@@ -78,22 +77,23 @@ class _PostCommentBoxState extends State<PostCommentBox> {
                             width: 1.0,
                           )),
                       hintText: widget.hintText,
-                      prefix: Text(
-                        '@ ${commentDetail.getUser()}' ?? " ",
-                        style:
-                            TextStyle(backgroundColor: Colors.lightBlueAccent),
-                      ),
+                      prefix: commentDetail.getMentionedUser() != null
+                          ? Text(
+                              '@ ${commentDetail.getMentionedUser()}' ?? " ",
+                              style: TextStyle(
+                                  backgroundColor: Colors.lightBlueAccent),
+                            )
+                          : null,
                       hintStyle: TextStyle(
                           fontSize: widget.hintSize, color: widget.hintColor),
                       suffixIcon: this.isTyping
                           ? InkWell(
                               onTap: () {
-                                var mentionedUser = commentDetail.getUser();
-                                commentDetail.setUser("");
+                                var mentionedUser = commentDetail.getMentionedUser();
                                 //new comment
-                                Comment _myComment;
-                                if (mentionedUser == "") {
-                                  _myComment = Comment(
+                                NewComment _myComment;
+                                if (mentionedUser ==null) {
+                                  _myComment = NewComment(
                                       commentMessage: _commentController.text,
                                       userId: 5,
                                       userName: "Mohan Kumar Dhakal",
@@ -104,25 +104,26 @@ class _PostCommentBoxState extends State<PostCommentBox> {
                                       mentionedUserId: 1,
                                       mentionedUserName: mentionedUser,
                                       replyMessage: _commentController.text);
-                                  _myComment = Comment(
+                                  _myComment = NewComment(
                                       commentsId: 2,
-                                      commentMessage: '@ $mentionedUser ${_commentController.text}',
+                                      commentMessage:
+                                          '@ $mentionedUser ${_commentController.text}',
                                       userId: 5,
                                       userName: 'Ram Kumar Basyal',
                                       replies: reply);
                                 }
-                                commentDetail.addComment(_myComment);
+                                Provider.of<CommentsList>(context,listen: false).addComment(_myComment);
                                 _commentController.text = "";
                               },
                               splashColor: Colors.lightBlue,
                               child: Icon(
                                 Icons.send,
-                                size: Constants.icon_size,
+                                size: Constants.ICON_SIZE,
                               ),
                             )
                           : Icon(
                               Icons.ondemand_video,
-                              size: Constants.icon_size,
+                              size: Constants.ICON_SIZE,
                             ),
                       focusedErrorBorder: OutlineInputBorder(
                           borderSide: BorderSide(

@@ -3,26 +3,26 @@ import 'package:json_annotation/json_annotation.dart';
 part 'user.g.dart';
 
 @JsonSerializable()
-class NewUser {
-  int _id;
+class User {
+  int _userId;
   String _phone;
   String _email, _userName, _password;
 
-  NewUser.name(
+  User.name(
        this._phone, this._email, this._userName, this._password);
 
-  NewUser();
+  User();
 
-  factory NewUser.fromJson(Map<String, dynamic> json) =>
-      _$NewUserFromJson(json);
+  factory User.fromJson(Map<String, dynamic> json) =>
+      _$UserFromJson(json);
 
 
-  Map<String, dynamic> toJson() => _$NewUserToJson(this);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 
-  int get id => _id;
+  int get userId => _userId;
 
-  set id(int value) {
-    _id = value;
+  set userId(int value) {
+    _userId = value;
   }
 
   get password => _password;
